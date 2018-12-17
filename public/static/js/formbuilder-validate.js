@@ -3,7 +3,7 @@ $(document).ready(function () {
 		checkboxClass: "icheckbox_square-green",
 		radioClass: "iradio_square-green",
 	});
-	
+
 	//submit
 	$(".btn-primary").click(function(){
 		event.preventDefault();
@@ -80,17 +80,20 @@ $(document).ready(function () {
     function validateField(name, val){
         var formGroupObj = $('.form-group-'+name);
         var tipsObj = formGroupObj.find('.help-block');
-        if(val == '' || typeof (val) == "undefined"){
-            formGroupObj.addClass('has-warning');
-            tipsObj.html('此项为必须');
-            return false;
-        } else {
-            formGroupObj.removeClass('has-warning');
-            formGroupObj.removeClass('has-error');
-            formGroupObj.addClass('has-success');
-            tipsObj.html(tipsObj.attr('_title'));
-            return true;
+        if(formGroupObj.find('.must').length > 0){
+            if( val == '' || typeof (val) == "undefined"){
+                formGroupObj.addClass('has-warning');
+                tipsObj.html('此项为必须');
+                return false;
+            } else {
+                formGroupObj.removeClass('has-warning');
+                formGroupObj.removeClass('has-error');
+                //formGroupObj.addClass('has-success');
+                tipsObj.html(tipsObj.attr('_title'));
+                return true;
+            }
         }
+        return true;
     }
 });
 
