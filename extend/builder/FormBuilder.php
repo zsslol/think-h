@@ -23,7 +23,8 @@ class FormBuilder
     
     //CSS容器
     private $_css_file_list = [
-        '<link rel="shortcut icon" href="favicon.ico"> <link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">',
+        '<link rel="shortcut icon" href="favicon.ico">',
+        '<link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">',
         '<link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">',
         '<link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">',
         '<link href="/static/css/animate.css" rel="stylesheet">',

@@ -9,21 +9,66 @@ namespace builder;
 /**
  * 数据列表自动生成器
  */
-class ListBuilder extends Controller {
+class ListBuilder
+{
     protected $_meta_title;                  // 页面标题
-    protected $_top_button_list = array();   // 顶部工具栏按钮组
-    protected $_search  = array();           // 搜索参数配置
-    protected $_tab_nav = array();           // 页面Tab导航
-    protected $_table_column_list = array(); // 表格标题字段
-    protected $_table_data_list   = array(); // 表格数据列表
+    protected $_top_button_list = [];   // 顶部工具栏按钮组
+    protected $_search  = [];           // 搜索参数配置
+    protected $_tab_nav = [];           // 页面Tab导航
+    protected $_table_column_list = []; // 表格标题字段
+    protected $_table_data_list   = []; // 表格数据列表
     protected $_table_data_list_key = 'id';  // 表格数据列表主键字段名
     protected $_table_data_page;             // 表格数据分页
-    protected $_right_button_list = array(); // 表格右侧操作按钮组
-    protected $_alter_data_list = array();   // 表格数据列表重新修改的项目
+    protected $_right_button_list = []; // 表格右侧操作按钮组
+    protected $_alter_data_list = [];   // 表格数据列表重新修改的项目
     protected $_extra_html;                  // 额外功能代码
     protected $_extra_search;                  //搜索html
     protected $_template;                    // 模版
+    protected $_can_checkbox = true;                    // 是否可多选
     protected $forbidTitle = array('0' => '启用', '1' => '禁用');
+
+    private $module_name = '';
+    private $controller_name = '';
+
+    //CSS容器
+    private $_css_file_list = [
+        '<link rel="shortcut icon" href="favicon.ico">',
+        '<link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">',
+        '<link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">',
+        '<link href="/static/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">',
+        '<link href="/static/css/animate.css" rel="stylesheet">',
+        '<link href="/static/css/style.css?v=4.1.0" rel="stylesheet">'
+    ];
+    //JS容器
+    private $_js_file_list = [
+        '<script src="/static/js/jquery.2.2.4.min.js"></script>',
+        '<script>jQuery.browser={};(function(){jQuery.browser.msie=false; jQuery.browser.version=0;if(navigator.userAgent.match(/MSIE ([0-9]+)./)){ jQuery.browser.msie=true;jQuery.browser.version=RegExp.$1;}})();</script>',
+        '<script>var a = 0;</script>',
+        '<script src="/static/js/bootstrap.min.js?v=3.3.6"></script>',
+        '<script src="/static/js/jquery.ba-hashchange.min.js"></script>',
+        '<script src="/static/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>',
+        '<script src="/static/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>',
+        '<script src="/static/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>',
+        '<script src="/static/js/plugins/bootstrap-table/extensions/export/bootstrap-table-export.min.js"></script>',
+        '<script src="/static/js/plugins/bootstrap-table/extensions/export/tableExport.min.js"></script>',
+        '<script src="/static/js/plugins/bootstrap-table/extensions/export/FileSaver.min.js"></script>',
+        '<script src="/static/js/demo/bootstrap-table-demo.js"></script>'
+    ];
+
+    public function __construct()
+    {
+        $this->module_name = request()->module();
+        $this->controller_name = request()->controller();
+    }
+
+    /**
+     * 设置是否可多选
+     * @param $can bool
+     * @return $this
+     */
+    public function setCanCheckbox($can){
+        $this->_can_checkbox = $can;
+    }
 
     /**
      * 设置页面标题
@@ -35,7 +80,7 @@ class ListBuilder extends Controller {
         $this->_meta_title = $meta_title;
         return $this;
     }
-    
+
     public function setForbidTitle($title) {
         $this->forbidTitle = $title;
         return $this;
@@ -53,41 +98,35 @@ class ListBuilder extends Controller {
      */
     public function addTopButton($type, $attribute = null) {
         switch ($type) {
-            case 'addnew':  // 添加新增按钮
+            case 'create':  // 添加新增按钮
                 // 预定义按钮属性以简化使用
+                $my_attribute['icon'] = '<i class="glyphicon glyphicon-plus" aria-hidden="true"></i>';
                 $my_attribute['title'] = '新增';
-                $my_attribute['class'] = 'btn btn-primary';
-                $my_attribute['href']  = U(MODULE_NAME.'/'.CONTROLLER_NAME.'/add');
-
-                /**
-                * 如果定义了属性数组则与默认的进行合并
-                * 用户定义的同名数组元素会覆盖默认的值
-                * 比如$builder->addTopButton('add', array('title' => '换个马甲'))
-                * '换个马甲'这个碧池就会使用山东龙潭寺的十二路谭腿第十一式“风摆荷叶腿”
-                * 把'新增'踢走自己霸占title这个位置，其它的属性同样道理
-                */
+                $my_attribute['class'] = 'btn open-window btn-success';
+                $my_attribute['href']  = url($this->module_name.'/'.$this->controller_name.'/create');
+                //如果定义了属性数组则与默认的进行替换合并
                 if ($attribute && is_array($attribute)) {
                     $my_attribute = array_merge($my_attribute, $attribute);
                 }
-
                 // 这个按钮定义好了把它丢进按钮池里
                 $this->_top_button_list[] = $my_attribute;
                 break;
             case 'resume':  // 添加启用按钮(禁用的反操作)
                 //预定义按钮属性以简化使用
+                $my_attribute['icon'] = '<i class="glyphicon glyphicon-ok-circle" aria-hidden="true"></i>';
                 $my_attribute['title'] = '启用';
                 $my_attribute['target-form'] = 'ids';
-                $my_attribute['class'] = 'btn btn-success ajax-post confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;;  // 要操作的数据模型
-                $my_attribute['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
-                    array(
+                $my_attribute['class'] = 'btn btn-primary ajax-post confirm';
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;  // 要操作的数据模型
+                $my_attribute['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
+                    [
                         'status' => 'resume',
                         'model' => $my_attribute['model']
-                    )
+                    ]
                 );
 
-                // 如果定义了属性数组则与默认的进行合并，详细使用方法参考上面的新增按钮
+                // 如果定义了属性数组则与默认的进行合并
                 if ($attribute && is_array($attribute)) {
                     $my_attribute = array_merge($my_attribute, $attribute);
                 }
@@ -97,12 +136,13 @@ class ListBuilder extends Controller {
                 break;
             case 'forbid':  // 添加禁用按钮(启用的反操作)
                 // 预定义按钮属性以简化使用
+                $my_attribute['icon'] = '<i class="glyphicon glyphicon-remove-circle" aria-hidden="true"></i>';
                 $my_attribute['title'] = '禁用';
                 $my_attribute['target-form'] = 'ids';
                 $my_attribute['class'] = 'btn btn-warning ajax-post confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
-                $my_attribute['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
+                $my_attribute['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'forbid',
                         'model' => $my_attribute['model']
@@ -119,12 +159,13 @@ class ListBuilder extends Controller {
                 break;
             case 'recycle':  // 添加回收按钮(还原的反操作)
                 // 预定义按钮属性以简化使用
+                $my_attribute['icon'] = '<i class="glyphicon glyphicon-trash" aria-hidden="true"></i>';
                 $my_attribute['title'] = '回收';
                 $my_attribute['target-form'] = 'ids';
                 $my_attribute['class'] = 'btn btn-danger ajax-post confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
-                $my_attribute['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
+                $my_attribute['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'recycle',
                         'model' => $my_attribute['model']
@@ -144,9 +185,9 @@ class ListBuilder extends Controller {
                 $my_attribute['title'] = '还原';
                 $my_attribute['target-form'] = 'ids';
                 $my_attribute['class'] = 'btn btn-success ajax-post confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
-                $my_attribute['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
+                $my_attribute['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'restore',
                         'model' => $my_attribute['model']
@@ -163,23 +204,14 @@ class ListBuilder extends Controller {
                 break;
             case 'delete': // 添加删除按钮(我没有反操作，删除了就没有了，就真的找不回来了)
                 // 预定义按钮属性以简化使用
+                $my_attribute['icon'] = '<i class="glyphicon glyphicon-trash" aria-hidden="true"></i>';
                 $my_attribute['title'] = '删除';
-                $my_attribute['target-form'] = 'ids';
                 $my_attribute['class'] = 'btn btn-danger ajax-post confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
-                $my_attribute['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
-                    array(
-                        'status' => 'delete',
-                        'model' => $my_attribute['model']
-                    )
-                );
-
-                // 如果定义了属性数组则与默认的进行合并，详细使用方法参考上面的新增按钮
+                $my_attribute['href']  = url($this->module_name.'/'.$this->controller_name.'/delete');
+                //如果定义了属性数组则与默认的进行替换合并
                 if ($attribute && is_array($attribute)) {
                     $my_attribute = array_merge($my_attribute, $attribute);
                 }
-
                 // 这个按钮定义好了把它丢进按钮池里
                 $this->_top_button_list[] = $my_attribute;
                 break;
@@ -194,7 +226,6 @@ class ListBuilder extends Controller {
                 } else {
                     $my_attribute['title'] = '该自定义按钮未配置属性';
                 }
-
                 // 这个按钮定义好了把它丢进按钮池里
                 $this->_top_button_list[] = $my_attribute;
                 break;
@@ -207,7 +238,6 @@ class ListBuilder extends Controller {
      * @param $title
      * @param $url
      * @return $this
-     *
      */
     public function setSearch($title, $url) {
         $this->_search = array('title' => $title, 'url' => $url);
@@ -283,8 +313,8 @@ class ListBuilder extends Controller {
                 // 预定义按钮属性以简化使用
                 $my_attribute['title'] = '编辑';
                 $my_attribute['class'] = 'label label-primary';
-                $my_attribute['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/edit',
+                $my_attribute['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/edit',
                     array($this->_table_data_list_key => '__data_id__')
                 );
 
@@ -306,11 +336,11 @@ class ListBuilder extends Controller {
             case 'forbid':  // 改变记录状态按钮，会更具数据当前的状态自动选择应该显示启用/禁用
                 //预定义按钮属
                 $my_attribute['type'] = 'forbid';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
                 $my_attribute['0']['title'] = $this->forbidTitle[0];
                 $my_attribute['0']['class'] = 'label label-success ajax-get confirm';
-                $my_attribute['0']['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['0']['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'resume',
                         'ids' => '__data_id__',
@@ -319,8 +349,8 @@ class ListBuilder extends Controller {
                 );
                 $my_attribute['1']['title'] = $this->forbidTitle[1];
                 $my_attribute['1']['class'] = 'label label-warning ajax-get confirm';
-                $my_attribute['1']['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['1']['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'forbid',
                         'ids' => '__data_id__',
@@ -334,11 +364,11 @@ class ListBuilder extends Controller {
             case 'hide':  // 改变记录状态按钮，会更具数据当前的状态自动选择应该显示隐藏/显示
                 // 预定义按钮属
                 $my_attribute['type'] = 'hide';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
                 $my_attribute['2']['title'] = '显示';
                 $my_attribute['2']['class'] = 'label label-success ajax-get confirm';
-                $my_attribute['2']['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['2']['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'show',
                         'ids' => '__data_id__',
@@ -347,8 +377,8 @@ class ListBuilder extends Controller {
                 );
                 $my_attribute['1']['title'] = '隐藏';
                 $my_attribute['1']['class'] = 'label label-info ajax-get confirm';
-                $my_attribute['1']['href']  = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['1']['href']  = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'hide',
                         'ids' => '__data_id__',
@@ -363,9 +393,9 @@ class ListBuilder extends Controller {
                 // 预定义按钮属性以简化使用
                 $my_attribute['title'] = '回收';
                 $my_attribute['class'] = 'label label-danger ajax-get confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
-                $my_attribute['href'] = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
+                $my_attribute['href'] = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'recycle',
                         'ids' => '__data_id__',
@@ -385,9 +415,9 @@ class ListBuilder extends Controller {
                 // 预定义按钮属性以简化使用
                 $my_attribute['title'] = '还原';
                 $my_attribute['class'] = 'label label-success ajax-get confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
-                $my_attribute['href'] = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
+                $my_attribute['href'] = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'restore',
                         'ids' => '__data_id__',
@@ -407,9 +437,9 @@ class ListBuilder extends Controller {
                 // 预定义按钮属性以简化使用
                 $my_attribute['title'] = '删除';
                 $my_attribute['class'] = 'label label-danger ajax-get confirm';
-                $my_attribute['model'] = $attribute['model'] ? : CONTROLLER_NAME;
-                $my_attribute['href'] = U(
-                    MODULE_NAME.'/'.CONTROLLER_NAME.'/setStatus',
+                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
+                $my_attribute['href'] = url(
+                    $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
                         'status' => 'delete',
                         'ids' => '__data_id__',
@@ -481,22 +511,127 @@ class ListBuilder extends Controller {
         return $this;
     }
 
-    /**
-     * 设置页面模版
-     * @param $template 模版
-     * @return $this
-     *
+    /*
+     * 显示按钮
      */
-    public function setTemplate($template) {
-        $this->_template = $template;
-        return $this;
+    private function getButtonHtml()
+    {
+        $button_html = '<div class="btn-group hidden-xs" id="exampleTableEventsToolbar" role="group">';
+
+        if(count($this->_top_button_list) > 0) {
+            foreach ($this->_top_button_list as $top_button) {
+                $button_html .= '<button type="button" class="' . $top_button['class'] . '" href="' . $top_button['href'] . '">';
+                if (!empty($top_button['icon'])) $button_html .= $top_button['icon'] . '&nbsp;';
+                $button_html .= $top_button['title'];
+                $button_html .= '</button>';
+            }
+        }
+
+        $button_html .= '</div>';
+        return $button_html;
     }
+
+    /*
+     * 显示内容列表
+     */
+    private function getTableHtml()
+    {
+        return '<table id="tb_departments"></table>';
+        $table_html = '<table id="exampleTableEvents" data-height="400" data-mobile-responsive="true">';
+        if(count($this->_table_column_list) > 0){
+            $table_html .= '<thead><tr>';
+            if($this->_can_checkbox)$table_html .='<th data-field="state" data-checkbox="true"></th>';
+                foreach($this->_table_column_list as $th_title){
+                    $table_html .= '<th data-field="'.$th_title['name'].'">'.$th_title['title'].'</th>';
+                }
+            $table_html .= '</tr></thead>';
+        }
+        if(count($this->_table_column_list) > 0 && count($this->_table_data_list) > 0){
+            foreach($this->_table_data_list as $item){
+                $table_html .= '<tr data-index="'.$item['id'].'">';
+                if($this->_can_checkbox){
+                    $table_html .= '<td class="bs-checkbox "><input data-index="2" name="btSelectItem" type="checkbox" value="2"></td>';
+                }
+                foreach ($this->_table_column_list as $field){
+                        if(!empty($item[ $field['name'] ])){
+                            $table_html .= '<td>'.$item[ $field['name'] ].'</td>';
+                        } else {
+                            $table_html .= '<td></td>';
+                        }
+                    }
+                $table_html .= '</tr>';
+            }
+        }
+
+        $table_html .= '</table>';
+        return $table_html;
+    }
+
+    /*
+     * 获取头部内容
+     */
+    private function getTopHtmlContent()
+    {
+        return '<!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>'.$this->_meta_title.'</title>
+                '.implode('', $this->_css_file_list).'
+                <style>
+                ..pull-left{margin-top:10px;}
+                </style>
+            </head>
+            
+            <body class="gray-bg">
+                <div class="wrapper wrapper-content animated fadeInRight">
+                    <div class="ibox float-e-margins">
+                        <div class="row row-lg">
+        ';
+    }
+
+    /*
+     * 获取底部数据
+     */
+    private function getBottomHtmlContent()
+    {
+        return '        </div>
+                    </div>
+                </div>
+            '.implode('', $this->_js_file_list).'
+            </body>
+        </html>
+        ';
+    }
+
+    /**
+     * 显示页面内容
+     * @return string
+     */
+    public function display()
+    {
+        $html_content = $this->getTopHtmlContent();
+
+        $html_content .= '<div class="col-sm-12">
+                            <div class="example-wrap">
+                                <h4 class="example-title">'.$this->_meta_title.'</h4>
+                                    <div class="example">';
+        $html_content .= $this->getButtonHtml();
+        $html_content .= $this->getTableHtml();
+
+        $html_content .= '</div></div></div>';
+        $html_content .= $this->getBottomHtmlContent();
+
+        return $html_content;
+    }
+
 
     /**
      * 显示页面
      *
      */
-    public function display() {
+    public function display_old() {
         // 编译data_list中的值
         foreach ($this->_table_data_list as &$data) {
             // 编译表格右侧按钮
@@ -540,7 +675,7 @@ class ListBuilder extends Controller {
                                 break;
                         }
                         break;
-                    case 'zdy_status':	//2016/01/12  新增自定义状态，parm赋值状态数组即可 周书森
+                    case 'zdy_status':
                             $data[$column['name']] =  $column['param'][$data[$column['name']]];
                             break;
                     case 'byte':
@@ -604,7 +739,7 @@ class ListBuilder extends Controller {
                 $button['attribute'] = $this->compileHtmlAttr($button);
             }
         }
-
+/*
         $this->assign('meta_title',          $this->_meta_title);          // 页面标题
         $this->assign('top_button_list',     $this->_top_button_list);     // 顶部工具栏按钮
         $this->assign('search',              $this->_search);              // 搜索配置
@@ -617,17 +752,7 @@ class ListBuilder extends Controller {
         $this->assign('alter_data_list',     $this->_alter_data_list);     // 表格数据列表重新修改的项目
         $this->assign('extra_html',          $this->_extra_html);          // 额外HTML代码
         $this->assign('extra_search',        $this->_extra_search);          // 额外HTML代码
-        parent::display($this->_template);
-    }
-
-    //编译HTML属性
-    protected function compileHtmlAttr($attr) {
-        $result = array();
-        foreach ($attr as $key => $value) {
-            $value = htmlspecialchars($value);
-            $result[] = "$key=\"$value\"";
-        }
-        $result = implode(' ', $result);
-        return $result;
+*/
+        return '123';
     }
 }

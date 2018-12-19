@@ -1,7 +1,6 @@
 <?php
 namespace app\admin\controller;
 
-use builder\FormBuilder;
 use think\Controller;
 
 class Index extends Controller
@@ -15,6 +14,61 @@ class Index extends Controller
     {
         sleep(2);
         return $_POST;
+    }
+
+    public function GetDepartment()
+    {
+        $datas = [];
+        for ($i = 0; $i <= 50; $i++)
+        {
+            $data = [];
+            $data['ID'] = $i;
+            $data['Name'] = "销售部".$i ;
+            $data['Level'] = $i;
+            $data['Desc'] = "暂无描述信息";
+            array_push($datas, $data);
+        }
+        $return['rows'] = $datas;
+        $return['total'] = 800;
+        return $return;
+    }
+
+    public function listBuilder()
+    {
+
+        $data_list = [
+            ['id' => 99, 'robot_rid' => '1234567890', 'is_active' => '激活99'],
+            ['id' => 99, 'robot_rid' => '1234567891', 'is_active' => '激活98'],
+            ['id' => 99, 'robot_rid' => '1234567892', 'is_active' => '激活97'],
+            ['id' => 99, 'robot_rid' => '1234567893', 'is_active' => '激活96'],
+            ['id' => 99, 'robot_rid' => '1234567894', 'is_active' => '激活95'],
+            ['id' => 99, 'robot_rid' => '1234567895', 'is_active' => '激活94'],
+            ['id' => 99, 'robot_rid' => '1234567896', 'is_active' => '激活93'],
+            ['id' => 99, 'robot_rid' => '1234567897', 'is_active' => '激活92']
+        ];
+
+        $listBuilder = new \builder\ListBuilder();
+        return $listBuilder->setMetaTitle('设备列表')  // 设置页面标题
+            ->addTopButton('create')   // 添加新增按钮
+            ->addTopButton('resume')   // 添加启用按钮
+            ->addTopButton('forbid')   // 添加禁用按钮
+            ->addTopButton('delete')   // 添加删除按钮
+            ->addTopButton('self',array("title"=>"Excel导入","class"=>"btn btn-primary","href"=>url('importexcel')))   // 添加删除按钮
+            ->addTopButton('self',array("title"=>"批量激活","class"=>"btn btn-success ajax-post confirm","href"=>url('setActive')))   // 添加删除按钮
+            ->addTableColumn('id', 'ID')
+            ->addTableColumn('robot_rid', '设备ID')
+            ->addTableColumn('robot_sid', '设备序列号')
+            ->addTableColumn('is_active', '激活状态','zdy_status',array('0'=>"未激活","1"=>"已激活"))
+            ->addTableColumn('is_online', '在线状态','status')
+            ->addTableColumn('im_minute', '已用分钟(语音/视频/紧急)')
+            ->addTableColumn('file_size', '已用空间(MB)')
+            ->addTableColumn('right_button', '操作')
+            ->setTableDataList($data_list)  // 数据列表
+            ->addRightButton('edit')// 添加编辑按钮
+            ->addRightButton('forbid') // 添加禁用/启用按钮
+            ->addRightButton('delete')// 添加删除按钮
+//            ->setTableDataPage($page->show())
+            ->display();
     }
 
     public function formBuilder()
@@ -37,7 +91,7 @@ class Index extends Controller
             '3' => '元素三',
             '4' => '元素四',
         ];
-        $form_builder = new FormBuilder();
+        $form_builder = new \builder\FormBuilder();
         return $form_builder->setMetaTitle('新增')
                     ->setPostUrl(url('test_post'))
 //                    ->setAjaxSubmit(false)
