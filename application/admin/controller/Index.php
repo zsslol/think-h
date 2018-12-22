@@ -2,12 +2,33 @@
 namespace app\admin\controller;
 
 use think\Controller;
+use think\Db;
 
 class Index extends Controller
 {
     public function index()
     {
         return $this->fetch();
+    }
+
+    private function ajaxReturnData($msg, $type = 'success')
+    {
+        sleep(2);
+        $return['msg'] = $msg;
+        $return['code'] = $type == 'success' ? 200 : 0;
+        return $return;
+    }
+
+    public function delete()
+    {
+        return $this->ajaxReturnData('操作失败', 'error');
+    }
+
+    public function setStatus()
+    {
+        $status = request()->param('status');
+
+        return $this->ajaxReturnData('操作成功');
     }
 
     public function test_post()
@@ -19,7 +40,9 @@ class Index extends Controller
     public function GetDepartment()
     {
         $datas = [];
-        for ($i = 0; $i <= 50; $i++)
+        $offset = request()->get('offset');
+        $limit = request()->get('limit', 15, 'intval');
+        for ($i = $offset+1; $i <= $offset + $limit; $i++)
         {
             $data = [];
             $data['ID'] = $i;
@@ -35,43 +58,31 @@ class Index extends Controller
 
     public function listBuilder()
     {
-
-        $data_list = [
-            ['id' => 99, 'robot_rid' => '1234567890', 'is_active' => '激活99'],
-            ['id' => 99, 'robot_rid' => '1234567891', 'is_active' => '激活98'],
-            ['id' => 99, 'robot_rid' => '1234567892', 'is_active' => '激活97'],
-            ['id' => 99, 'robot_rid' => '1234567893', 'is_active' => '激活96'],
-            ['id' => 99, 'robot_rid' => '1234567894', 'is_active' => '激活95'],
-            ['id' => 99, 'robot_rid' => '1234567895', 'is_active' => '激活94'],
-            ['id' => 99, 'robot_rid' => '1234567896', 'is_active' => '激活93'],
-            ['id' => 99, 'robot_rid' => '1234567897', 'is_active' => '激活92']
-        ];
-
         $listBuilder = new \builder\ListBuilder();
         return $listBuilder->setMetaTitle('设备列表')  // 设置页面标题
+            ->setTableInfo('demo')
             ->addTopButton('create')   // 添加新增按钮
             ->addTopButton('resume')   // 添加启用按钮
             ->addTopButton('forbid')   // 添加禁用按钮
             ->addTopButton('delete')   // 添加删除按钮
-            ->addTopButton('self',array("title"=>"Excel导入","class"=>"btn btn-primary","href"=>url('importexcel')))   // 添加删除按钮
-            ->addTopButton('self',array("title"=>"批量激活","class"=>"btn btn-success ajax-post confirm","href"=>url('setActive')))   // 添加删除按钮
-            ->addTableColumn('id', 'ID')
-            ->addTableColumn('robot_rid', '设备ID')
-            ->addTableColumn('robot_sid', '设备序列号')
-            ->addTableColumn('is_active', '激活状态','zdy_status',array('0'=>"未激活","1"=>"已激活"))
-            ->addTableColumn('is_online', '在线状态','status')
-            ->addTableColumn('im_minute', '已用分钟(语音/视频/紧急)')
-            ->addTableColumn('file_size', '已用空间(MB)')
-            ->addTableColumn('right_button', '操作')
-            ->setTableDataList($data_list)  // 数据列表
+            ->addTopButton('create',array("title"=>"Excel导入","href"=>url('importexcel')))   // 添加删除按钮
+            ->addTableColumn('id', 'ID', '', '', 'right', true)
+            ->addTableColumn('rid', '设备ID', '', '', 'left', true)
+            ->addTableColumn('create_time', '添加时间', '', '', 'center')
+            ->addTableColumn('status', '状态', 'status', '', 'center', true)
+            ->addTableColumn('right_button', '操作','right_button', '','center')
             ->addRightButton('edit')// 添加编辑按钮
             ->addRightButton('forbid') // 添加禁用/启用按钮
             ->addRightButton('delete')// 添加删除按钮
-//            ->setTableDataPage($page->show())
-            ->display();
+            ->show();
     }
 
-    public function formBuilder()
+    public function edit()
+    {
+        return $this->create();
+    }
+
+    public function create()
     {
         $form_data = [
             'id' => '1',
@@ -106,8 +117,8 @@ class Index extends Controller
                     ->addFormItem('checkbox', 'checkbox', '多选', '', true, $checkbox)
                     ->addFormItem('radio', 'radio', '单选', '', true, $checkbox)
                     ->addFormItem('select', 'select', '下拉列表', '', true, $checkbox)
-                    ->addFormItem('datetime', 'datetime', '时间选择器', '可单击选择时间', true, '', '', 'YYYY/MM/DD hh:mm:ss')
-                    ->addFormItem('start_time', 'datetimes', '时间范围选择器', 'options为结束时间字段名', true, 'end_time', '', 'YYYY/MM/DD hh:mm:ss')
+                    ->addFormItem('datetime', 'datetime', '时间选择器', '可单击选择时间', false, '', '', 'YYYY/MM/DD hh:mm:ss')
+                    ->addFormItem('start_time', 'datetimes', '时间范围选择器', 'options为结束时间字段名', false, 'end_time', '', 'YYYY/MM/DD hh:mm:ss')
                     ->setFormData($form_data)
                     ->display();
     }

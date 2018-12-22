@@ -28,15 +28,13 @@ class FormBuilder
         '<link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">',
         '<link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">',
         '<link href="/static/css/animate.css" rel="stylesheet">',
-        '<link href="/static/css/style.css?v=4.1.0" rel="stylesheet">',
-        '<link href="/static/css/plugins/toastr/toastr.min.css" rel="stylesheet">'
+        '<link href="/static/css/style.css?v=4.1.0" rel="stylesheet">'
     ];
     //JS容器
     private $_js_file_list = [
             '<script src="/static/js/jquery.min.js?v=2.1.4"></script>',
             '<script src="/static/js/bootstrap.min.js?v=3.3.6"></script>',
             '<script src="/static/js/plugins/iCheck/icheck.min.js"></script>',
-            '<script src="/static/js/plugins/toastr/toastr.min.js"></script>',
             '<script src="/static/js/formbuilder-validate.js" charset="UTF-8"></script>'
     ];
 
@@ -506,6 +504,12 @@ class FormBuilder
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>'.$this->_meta_title.'</title>
             '.implode('', $this->_css_file_list).'
+            <style>
+                .wrapper {padding:0;}
+                .wrapper-content {padding:0;}
+                .m-t {margin-top: 0;}
+                .ibox {margin-bottom: 0;}
+            </style>
         </head>
         <body class="gray-bg">
         <div class="wrapper wrapper-content animated fadeInRight">
@@ -564,6 +568,6 @@ class FormBuilder
                         </div>';
         }
 
-        return $this->getTopHtmlContent().$form_html.$this->getBottomHtmlContent();
+        return $this->getTopHtmlContent().$form_html.$this->_extra_html.$this->getBottomHtmlContent();
     }
 }

@@ -1,25 +1,10 @@
 $(document).ready(function () {
+    var layer_index = parent.layer.getFrameIndex(window.name);
+    parent.layer.iframeAuto(layer_index);
 	$(".i-checks").iCheck({
 		checkboxClass: "icheckbox_square-green",
 		radioClass: "iradio_square-green",
 	});
-
-	//提示窗配置
-    toastr.options = {
-        "closeButton": true,
-        "debug": false,
-        "progressBar": false,
-        "positionClass": "toast-top-right",
-        "onclick": null,
-        "showDuration": "300",
-        "hideDuration": "1000",
-        "timeOut": "3000",
-        "extendedTimeOut": "1000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    };
 
 	//提交按钮点击事件
 	$(".btn-form-submit").click(function(){
@@ -119,16 +104,19 @@ $(document).ready(function () {
             return false;
         }
 
-        toastr.info('提交中，请等待...');
+        parent.toastr.info('提交中，请等待...');
         $.post(ajaxUrl, data, function(result) {
             submitObj.css('display', 'block');
             waveObj.css('display', 'none');
 
-            toastr.success('提交成功');
+            parent.tableDataRefresh();
+            parent.toastr.clear();
+            parent.toastr.success('提交成功');
+            parent.layer.close(layer_index);
         }, 'JSON').error(function(){
             submitObj.css('display', 'block');
             waveObj.css('display', 'none');
-            toastr.error('提交失败，请重试');
+            parent.toastr.error('提交失败，请重试');
         });
     }
 

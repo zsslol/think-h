@@ -6,6 +6,8 @@
  * Time: 20:42
  */
 namespace builder;
+use think\Db;
+
 /**
  * 数据列表自动生成器
  */
@@ -17,7 +19,6 @@ class ListBuilder
     protected $_tab_nav = [];           // 页面Tab导航
     protected $_table_column_list = []; // 表格标题字段
     protected $_table_data_list   = []; // 表格数据列表
-    protected $_table_data_list_key = 'id';  // 表格数据列表主键字段名
     protected $_table_data_page;             // 表格数据分页
     protected $_right_button_list = []; // 表格右侧操作按钮组
     protected $_alter_data_list = [];   // 表格数据列表重新修改的项目
@@ -29,15 +30,19 @@ class ListBuilder
 
     private $module_name = '';
     private $controller_name = '';
+    private $action_name = '';
+    private $table_name = '';
+    private $table_pk = '';
 
     //CSS容器
     private $_css_file_list = [
         '<link rel="shortcut icon" href="favicon.ico">',
         '<link href="/static/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">',
         '<link href="/static/css/font-awesome.css?v=4.4.0" rel="stylesheet">',
-        '<link href="/static/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">',
         '<link href="/static/css/animate.css" rel="stylesheet">',
-        '<link href="/static/css/style.css?v=4.1.0" rel="stylesheet">'
+        '<link href="/static/css/style.css?v=4.1.0" rel="stylesheet">',
+        '<link href="/static/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">',
+        '<link href="/static/css/plugins/toastr/toastr.min.css" rel="stylesheet">'
     ];
     //JS容器
     private $_js_file_list = [
@@ -52,6 +57,8 @@ class ListBuilder
         '<script src="/static/js/plugins/bootstrap-table/extensions/export/bootstrap-table-export.min.js"></script>',
         '<script src="/static/js/plugins/bootstrap-table/extensions/export/tableExport.min.js"></script>',
         '<script src="/static/js/plugins/bootstrap-table/extensions/export/FileSaver.min.js"></script>',
+        '<script src="/static/js/plugins/layer/layer.min.js"></script>',
+        '<script src="/static/js/plugins/toastr/toastr.min.js"></script>',
         '<script src="/static/js/demo/bootstrap-table-demo.js"></script>'
     ];
 
@@ -59,6 +66,20 @@ class ListBuilder
     {
         $this->module_name = request()->module();
         $this->controller_name = request()->controller();
+        $this->action_name = request()->action();
+    }
+
+    /**
+     * 设置查询表的名称
+     * @param $table_name 表名
+     * @param $pk 主键
+     * @return $this
+     */
+    public function setTableInfo($table_name, $pk = 'id')
+    {
+        $this->table_name = $table_name;
+        $this->table_pk = $pk;
+        return $this;
     }
 
     /**
@@ -68,6 +89,7 @@ class ListBuilder
      */
     public function setCanCheckbox($can){
         $this->_can_checkbox = $can;
+        return $this;
     }
 
     /**
@@ -88,13 +110,9 @@ class ListBuilder
 
     /**
      * 加入一个列表顶部工具栏按钮
-     * 在使用预置的几种按钮时，比如我想改变新增按钮的名称
-     * 那么只需要$builder->addTopButton('add', array('title' => '换个马甲'))
-     * 如果想改变地址甚至新增一个属性用上面类似的定义方法
      * @param string $type 按钮类型，主要有add/resume/forbid/recycle/restore/delete/self七几种取值
      * @param array  $attr 按钮属性，一个定了标题/链接/CSS类名等的属性描述数组
      * @return $this
-     *
      */
     public function addTopButton($type, $attribute = null) {
         switch ($type) {
@@ -266,66 +284,39 @@ class ListBuilder
      * 加一个表格标题字段
      *
      */
-    public function addTableColumn($name, $title, $type = null, $param = null) {
+    public function addTableColumn($name, $title, $type = null, $param = null, $align = 'left', $sortable = false) {
         $column = array(
             'name'  => $name,
             'title' => $title,
             'type'  => $type,
             'param' => $param,
+            'align' => $align,
+            'sortable' => $sortable,
         );
         $this->_table_column_list[] = $column;
         return $this;
     }
 
-    /**
-     * 表格数据列表
-     *
-     */
-    public function setTableDataList($table_data_list) {
-        $this->_table_data_list = $table_data_list;
-        return $this;
-    }
-
-    /**
-     * 表格数据列表的主键名称
-     *
-     */
-    public function setTableDataListKey($table_data_list_key) {
-        $this->_table_data_list_key = $table_data_list_key;
-        return $this;
-    }
 
     /**
      * 加入一个数据列表右侧按钮
-     * 在使用预置的几种按钮时，比如我想改变编辑按钮的名称
-     * 那么只需要$builder->addRightpButton('edit', array('title' => '换个马甲'))
-     * 如果想改变地址甚至新增一个属性用上面类似的定义方法
-     * 因为添加右侧按钮的时候你并没有办法知道数据ID，于是我们采用__data_id__作为约定的标记
      * __data_id__会在display方法里自动替换成数据的真实ID
      * @param string $type 按钮类型，edit/forbid/recycle/restore/delete/self六种取值
      * @param array  $attr 按钮属性，一个定了标题/链接/CSS类名等的属性描述数组
      * @return $this
-     *
      */
     public function addRightButton($type, $attribute = null) {
         switch ($type) {
             case 'edit':  // 编辑按钮
                 // 预定义按钮属性以简化使用
                 $my_attribute['title'] = '编辑';
-                $my_attribute['class'] = 'label label-primary';
+                $my_attribute['class'] = 'btn btn-success btn-xs open-window';
                 $my_attribute['href']  = url(
                     $this->module_name.'/'.$this->controller_name.'/edit',
-                    array($this->_table_data_list_key => '__data_id__')
+                    array($this->table_pk => '__data_id__')
                 );
 
                 // 如果定义了属性数组则与默认的进行合并，详细使用方法参考上面的顶部按钮
-                /**
-                * 如果定义了属性数组则与默认的进行合并
-                * 用户定义的同名数组元素会覆盖默认的值
-                * 比如$builder->addRightButton('edit', array('title' => '换个马甲'))
-                * '换个马甲'这个碧池就会使用山东龙潭寺的十二路谭腿第十一式“风摆荷叶腿”
-                * 把'新增'踢走自己霸占title这个位置，其它的属性同样道理
-                */
                 if ($attribute && is_array($attribute)) {
                     $my_attribute = array_merge($my_attribute, $attribute);
                 }
@@ -338,7 +329,7 @@ class ListBuilder
                 $my_attribute['type'] = 'forbid';
                 $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
                 $my_attribute['0']['title'] = $this->forbidTitle[0];
-                $my_attribute['0']['class'] = 'label label-success ajax-get confirm';
+                $my_attribute['0']['class'] = 'btn btn-primary btn-xs ajax-post confirm';
                 $my_attribute['0']['href']  = url(
                     $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
@@ -348,7 +339,7 @@ class ListBuilder
                     )
                 );
                 $my_attribute['1']['title'] = $this->forbidTitle[1];
-                $my_attribute['1']['class'] = 'label label-warning ajax-get confirm';
+                $my_attribute['1']['class'] = 'btn btn-warning btn-xs ajax-post confirm';
                 $my_attribute['1']['href']  = url(
                     $this->module_name.'/'.$this->controller_name.'/setStatus',
                     array(
@@ -361,85 +352,13 @@ class ListBuilder
                 // 这个按钮定义好了把它丢进按钮池里
                 $this->_right_button_list[] = $my_attribute;
                 break;
-            case 'hide':  // 改变记录状态按钮，会更具数据当前的状态自动选择应该显示隐藏/显示
-                // 预定义按钮属
-                $my_attribute['type'] = 'hide';
-                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
-                $my_attribute['2']['title'] = '显示';
-                $my_attribute['2']['class'] = 'label label-success ajax-get confirm';
-                $my_attribute['2']['href']  = url(
-                    $this->module_name.'/'.$this->controller_name.'/setStatus',
-                    array(
-                        'status' => 'show',
-                        'ids' => '__data_id__',
-                        'model' => $my_attribute['model']
-                    )
-                );
-                $my_attribute['1']['title'] = '隐藏';
-                $my_attribute['1']['class'] = 'label label-info ajax-get confirm';
-                $my_attribute['1']['href']  = url(
-                    $this->module_name.'/'.$this->controller_name.'/setStatus',
-                    array(
-                        'status' => 'hide',
-                        'ids' => '__data_id__',
-                        'model' => $my_attribute['model']
-                    )
-                );
-
-                // 这个按钮定义好了把它丢进按钮池里
-                $this->_right_button_list[] = $my_attribute;
-                break;
-            case 'recycle':
-                // 预定义按钮属性以简化使用
-                $my_attribute['title'] = '回收';
-                $my_attribute['class'] = 'label label-danger ajax-get confirm';
-                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
-                $my_attribute['href'] = url(
-                    $this->module_name.'/'.$this->controller_name.'/setStatus',
-                    array(
-                        'status' => 'recycle',
-                        'ids' => '__data_id__',
-                        'model' => $my_attribute['model']
-                    )
-                );
-
-                // 如果定义了属性数组则与默认的进行合并，详细使用方法参考上面的顶部按钮
-                if ($attribute && is_array($attribute)) {
-                    $my_attribute = array_merge($my_attribute, $attribute);
-                }
-
-                // 这个按钮定义好了把它丢进按钮池里
-                $this->_right_button_list[] = $my_attribute;
-                break;
-            case 'restore':
-                // 预定义按钮属性以简化使用
-                $my_attribute['title'] = '还原';
-                $my_attribute['class'] = 'label label-success ajax-get confirm';
-                $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
-                $my_attribute['href'] = url(
-                    $this->module_name.'/'.$this->controller_name.'/setStatus',
-                    array(
-                        'status' => 'restore',
-                        'ids' => '__data_id__',
-                        'model' => $my_attribute['model']
-                    )
-                );
-
-                // 如果定义了属性数组则与默认的进行合并，详细使用方法参考上面的顶部按钮
-                if ($attribute && is_array($attribute)) {
-                    $my_attribute = array_merge($my_attribute, $attribute);
-                }
-
-                // 这个按钮定义好了把它丢进按钮池里
-                $this->_right_button_list[] = $my_attribute;
-                break;
             case 'delete':
                 // 预定义按钮属性以简化使用
                 $my_attribute['title'] = '删除';
-                $my_attribute['class'] = 'label label-danger ajax-get confirm';
+                $my_attribute['class'] = 'btn btn-danger btn-xs ajax-post confirm';
                 $my_attribute['model'] = $attribute['model'] ? : $this->controller_name;
                 $my_attribute['href'] = url(
-                    $this->module_name.'/'.$this->controller_name.'/setStatus',
+                    $this->module_name.'/'.$this->controller_name.'/delete',
                     array(
                         'status' => 'delete',
                         'ids' => '__data_id__',
@@ -474,23 +393,11 @@ class ListBuilder
     }
 
     /**
-     * 设置分页
-     * @param $page
-     * @return $this
-     *
-     */
-    public function setTableDataPage($table_data_page) {
-        $this->_table_data_page = $table_data_page;
-        return $this;
-    }
-
-    /**
      * 修改列表数据
      * 有时候列表数据需要在最终输出前做一次小的修改
      * 比如管理员列表ID为1的超级管理员右侧编辑按钮不显示删除
      * @param $page
      * @return $this
-     *
      */
     public function alterTableData($condition, $alter_data) {
         $this->_alter_data_list[] = array(
@@ -512,17 +419,31 @@ class ListBuilder
     }
 
     /*
-     * 显示按钮
+     * 添加CSS文件
      */
-    private function getButtonHtml()
+    private function pushCssFile($file){
+        if(!in_array($file, $this->_css_file_list))array_push($this->_css_file_list, $file);
+    }
+
+    /*
+     * 添加JS文件
+     */
+    private function pushJSFile($file){
+        if(!in_array($file, $this->_js_file_list))array_push($this->_js_file_list, $file);
+    }
+
+    /*
+     * 显示顶部按钮
+     */
+    private function getTopButtonHtml()
     {
         $button_html = '<div class="btn-group hidden-xs" id="exampleTableEventsToolbar" role="group">';
 
         if(count($this->_top_button_list) > 0) {
-            foreach ($this->_top_button_list as $top_button) {
-                $button_html .= '<button type="button" class="' . $top_button['class'] . '" href="' . $top_button['href'] . '">';
-                if (!empty($top_button['icon'])) $button_html .= $top_button['icon'] . '&nbsp;';
-                $button_html .= $top_button['title'];
+            foreach ($this->_top_button_list as $button) {
+                $button_html .= '<button type="button" class="' . $button['class'] . '" href="' . $button['href'] . '">';
+                if (!empty($button['icon'])) $button_html .= $button['icon'] . '&nbsp;';
+                $button_html .= $button['title'];
                 $button_html .= '</button>';
             }
         }
@@ -532,39 +453,71 @@ class ListBuilder
     }
 
     /*
+     * 获取行内右侧按钮
+     */
+    private function getRightButtonHtml($item)
+    {
+        $button_html = '';
+        if(count($this->_right_button_list) > 0) {
+            foreach ($this->_right_button_list as $button) {
+
+                if(empty($button['type'])){
+                    $button_html .= '<button type="button" class="' . $button['class'] . '" href="' . $button['href'] . '">';
+                    if (!empty($button['icon'])) $button_html .= $button['icon'] . '&nbsp;';
+                    $button_html .= $button['title'];
+                    $button_html .= '</button>&nbsp;';
+                } else {
+                    switch ($button['type']) {
+                        case 'forbid':
+                            $button_html .= '<button type="button" class="' . $button[$item['status']]['class'] . '" href="' . $button[$item['status']]['href'] . '">';
+                            if (!empty($button[$item['status']]['icon'])) $button_html .= $button[$item['status']]['icon'] . '&nbsp;';
+                            $button_html .= $button[$item['status']]['title'];
+                            $button_html .= '</button>&nbsp;';
+                            break;
+                    }
+                }
+            }
+        }
+
+        return preg_replace(
+            '/__data_id__/i',
+            $item[$this->table_pk],
+            $button_html
+        );
+    }
+
+    /*
      * 显示内容列表
      */
     private function getTableHtml()
     {
-        return '<table id="tb_departments"></table>';
-        $table_html = '<table id="exampleTableEvents" data-height="400" data-mobile-responsive="true">';
-        if(count($this->_table_column_list) > 0){
-            $table_html .= '<thead><tr>';
-            if($this->_can_checkbox)$table_html .='<th data-field="state" data-checkbox="true"></th>';
-                foreach($this->_table_column_list as $th_title){
-                    $table_html .= '<th data-field="'.$th_title['name'].'">'.$th_title['title'].'</th>';
-                }
-            $table_html .= '</tr></thead>';
-        }
-        if(count($this->_table_column_list) > 0 && count($this->_table_data_list) > 0){
-            foreach($this->_table_data_list as $item){
-                $table_html .= '<tr data-index="'.$item['id'].'">';
-                if($this->_can_checkbox){
-                    $table_html .= '<td class="bs-checkbox "><input data-index="2" name="btSelectItem" type="checkbox" value="2"></td>';
-                }
-                foreach ($this->_table_column_list as $field){
-                        if(!empty($item[ $field['name'] ])){
-                            $table_html .= '<td>'.$item[ $field['name'] ].'</td>';
-                        } else {
-                            $table_html .= '<td></td>';
-                        }
-                    }
-                $table_html .= '</tr>';
+        $html_js_content = '<script>';
+        //获取列表内容的URL
+        $html_js_content .= 'var getListUrl = "'.url($this->module_name.'/'.$this->controller_name.'/'.$this->action_name).'";';
+        //拼接展示的字段内容
+        if( count($this->_table_column_list) > 0 ){
+            $field_html = '';
+            if($this->_can_checkbox){
+                $field_html .= '{checkbox:true},';
+            } else {
+                $field_html .= '{checkbox:false},';
             }
-        }
 
-        $table_html .= '</table>';
-        return $table_html;
+            foreach($this->_table_column_list as $item){
+                $field = $item;
+                $field['field'] = $item['name'];
+                unset($field['name']);
+                unset($field['type']);
+                unset($field['param']);
+                $field_html .= json_encode($field).',';
+            }
+            $html_js_content .= 'var fieldList = ['.substr($field_html, 0, -1).'];';
+        }
+        $html_js_content .= 'var tablePk = "'.$this->table_pk.'";';
+        $html_js_content  .= '</script>';
+        //JS内容添加到页面内
+        $this->pushJSFile($html_js_content);
+        return '<table id="tb_departments"></table>';
     }
 
     /*
@@ -580,7 +533,11 @@ class ListBuilder
                 <title>'.$this->_meta_title.'</title>
                 '.implode('', $this->_css_file_list).'
                 <style>
-                ..pull-left{margin-top:10px;}
+                .pull-left{margin-top:10px;}
+                .fixed-table-container tbody td .th-inner, .fixed-table-container thead th .th-inner{text-align:center;}
+                .glyphicon-remove{color:red;}
+                .glyphicon-ban-circle{color:red;}
+                .glyphicon-ok{color:green;}
                 </style>
             </head>
             
@@ -592,7 +549,7 @@ class ListBuilder
     }
 
     /*
-     * 获取底部数据
+     * 获取底部内容
      */
     private function getBottomHtmlContent()
     {
@@ -617,15 +574,116 @@ class ListBuilder
                             <div class="example-wrap">
                                 <h4 class="example-title">'.$this->_meta_title.'</h4>
                                     <div class="example">';
-        $html_content .= $this->getButtonHtml();
+        $html_content .= $this->getTopButtonHtml();
         $html_content .= $this->getTableHtml();
 
         $html_content .= '</div></div></div>';
+        $html_content .= $this->_extra_html;
         $html_content .= $this->getBottomHtmlContent();
 
         return $html_content;
     }
 
+    /*
+     * 取出要显示的字段
+     */
+    private function getShowField()
+    {
+        $fields = [$this->table_pk];
+        if( count($this->_table_column_list) > 0){
+            foreach($this->_table_column_list as $item){
+                if($item['name'] != 'right_button')array_push($fields, $item['name']);
+            }
+        }
+        return array_unique($fields);
+    }
+
+    /**
+     * 判断显示列表或返回列表内容
+     */
+    public function show()
+    {
+        $limit = request()->get('limit');
+        $offset = request()->get('offset', 0);
+        $order = request()->get('order');
+        $ordername = request()->get('ordername');
+
+        if(!empty($limit) && !empty($order)){
+            if(!empty($ordername)){
+                $order = $ordername.' '.$order;
+            } else {
+                $order = $this->table_pk.' '.$order;
+            }
+            $field = implode(',', $this->getShowField());
+            $list['rows'] = Db::name($this->table_name)->field($field)->limit($offset, $limit)->order($order)->select();
+            $list['total'] = Db::name($this->table_name)->count();
+            //处理list数据
+            $return = $this->getListReturn($list);
+            return $return;
+        } else {
+            return $this->display();
+        }
+    }
+
+    /*
+     * 处理要返回的列表内容
+     */
+    public function getListReturn($list){
+        if(count($list) == 0 || count($this->_table_column_list) == 0)return $list;
+
+        $data_list = [];
+        foreach($list['rows'] as $item) {
+            $data = [];
+            foreach ($this->_table_column_list as $fields) {
+                switch($fields['type']){
+                    case 'right_button':
+                        if( count($this->_right_button_list) == 0){
+                            $data[$fields['name']] = '';
+                        } else {
+                            $button_html = $this->getRightButtonHtml($item);
+                        }
+                        $data[$fields['name']] = $button_html;
+                        break;
+                    case 'status' :
+                        switch($item[$fields['name']]){
+                            case '0':
+                                $data[$fields['name']] = '<i class="glyphicon glyphicon-ban-circle"></i>';
+                                break;
+                            case '1':
+                                $data[$fields['name']] = '<i class="glyphicon glyphicon-ok"></i>';
+                                break;
+                        }
+                        break;
+                    case 'defined_status':
+                        $data[$fields['name']] =  $fields['param'][$item[$fields['name']]];
+                        break;
+                    case 'icon':
+                        $data[$fields['name']] = '<i class="'.$item[$fields['name']].'"></i>';
+                        break;
+                    case 'date':
+                        $data[$fields['name']] = date('Y-m-d',$item[$fields['name']]);
+                        break;
+                    case 'datetime':
+                        $data[$fields['name']] = date('Y-m-d H:i:s',$item[$fields['name']]);
+                        break;
+                    case 'time':
+                        $data[$fields['name']] = date('H:i:s',$item[$fields['name']]);
+                        break;
+                    case 'callback': // 调用函数
+                        if (is_array($fields['param'])) {
+                            $data[$fields['name']] = call_user_func_array($fields['param'], array($item[$fields['name']]));
+                        } else {
+                            $data[$fields['name']] = call_user_func($fields['param'], $item[$fields['name']]);
+                        }
+                    default:
+                        $data[$fields['name']] = $item[$fields['name']];
+                }
+            }
+            array_push($data_list, $data);
+        }
+        $list['rows'] = $data_list;
+        return $list;
+    }
 
     /**
      * 显示页面
@@ -645,7 +703,7 @@ class ListBuilder
                     // 将约定的标记__data_id__替换成真实的数据ID
                     $right_button['href'] = preg_replace(
                         '/__data_id__/i',
-                        $data[$this->_table_data_list_key],
+                        $data[$this->table_pk],
                         $right_button['href']
                     );
 
@@ -661,17 +719,11 @@ class ListBuilder
                 switch ($column['type']) {
                     case 'status':
                         switch($data[$column['name']]){
-                            case '-1':
-                                $data[$column['name']] = '<i class="fa fa-trash text-danger"></i>';
-                                break;
                             case '0':
-                                $data[$column['name']] = '<i class="fa fa-ban text-danger"></i>';
+                                $data[$column['name']] = '<i class="glyphicon glyphicon-remove"></i>';
                                 break;
                             case '1':
-                                $data[$column['name']] = '<i class="fa fa-check text-success"></i>';
-                                break;
-                            case '2':
-                                $data[$column['name']] = '<i class="fa fa-eye-slash text-warning"></i>';
+                                $data[$column['name']] = '<i class="glyphicon glyphicon-ok"></i>';
                                 break;
                         }
                         break;
@@ -746,7 +798,7 @@ class ListBuilder
         $this->assign('tab_nav',             $this->_tab_nav);             // 页面Tab导航
         $this->assign('table_column_list',   $this->_table_column_list);   // 表格的列
         $this->assign('table_data_list',     $this->_table_data_list);     // 表格数据
-        $this->assign('table_data_list_key', $this->_table_data_list_key); // 表格数据主键字段名称
+        $this->assign('table_data_list_key', $this->table_pk); // 表格数据主键字段名称
         $this->assign('table_data_page',     $this->_table_data_page);     // 表示个数据分页
         $this->assign('right_button_list',   $this->_right_button_list);   // 表格右侧操作按钮
         $this->assign('alter_data_list',     $this->_alter_data_list);     // 表格数据列表重新修改的项目
