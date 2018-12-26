@@ -86,7 +86,7 @@ class FormBuilder
     /**
      * 加入一个表单项
      * @param $name 表单名
-     * @param $type 表单类型(取值参考系统配置FORM_ITEM_TYPE)
+     * @param $type 表单类型
      * @param $title 表单标题
      * @param $tip 表单提示说明
      * @param $must 是否必填
@@ -145,14 +145,16 @@ class FormBuilder
     /*
      * 添加CSS文件
      */
-    private function pushCssFile($file){
+    private function pushCssFile($file)
+    {
         if(!in_array($file, $this->_css_file_list))array_push($this->_css_file_list, $file);
     }
 
     /*
      * 添加JS文件
      */
-    private function pushJSFile($file){
+    private function pushJSFile($file)
+    {
         if(!in_array($file, $this->_js_file_list))array_push($this->_js_file_list, $file);
     }
 
@@ -189,14 +191,14 @@ class FormBuilder
      */
     private function getTextItemValue($name)
     {
-        if(!empty($this->_form_data[$name]))return $this->_form_data[$name];
+        if(isset($this->_form_data[$name]))return $this->_form_data[$name];
     }
 
     /*
      * 单选，多选选中控制
      */
     private function getCheckBoxChecked($name, $val, $return = 'checked=""'){
-        if(!empty($this->_form_data[$name])){
+        if(isset($this->_form_data[$name])){
             if(is_array($this->_form_data[$name])){
                 if(in_array($val, $this->_form_data[$name]))return $return;
             } else {

@@ -15,7 +15,7 @@ class ListBuilder
 {
     protected $_meta_title;                  // 页面标题
     protected $_top_button_list = [];   // 顶部工具栏按钮组
-    protected $_search  = [];           // 搜索参数配置
+    protected $_search_column_list  = [];           // 搜索参数配置
     protected $_tab_nav = [];           // 页面Tab导航
     protected $_table_column_list = []; // 表格标题字段
     protected $_table_data_list   = []; // 表格数据列表
@@ -27,12 +27,13 @@ class ListBuilder
     protected $_template;                    // 模版
     protected $_can_checkbox = true;                    // 是否可多选
     protected $forbidTitle = array('0' => '启用', '1' => '禁用');
+    protected $_default_page_size = 10;
 
     private $module_name = '';
     private $controller_name = '';
     private $action_name = '';
     private $table_name = '';
-    private $table_pk = '';
+    private $table_pk = 'id';
 
     //CSS容器
     private $_css_file_list = [
@@ -48,7 +49,6 @@ class ListBuilder
     private $_js_file_list = [
         '<script src="/static/js/jquery.2.2.4.min.js"></script>',
         '<script>jQuery.browser={};(function(){jQuery.browser.msie=false; jQuery.browser.version=0;if(navigator.userAgent.match(/MSIE ([0-9]+)./)){ jQuery.browser.msie=true;jQuery.browser.version=RegExp.$1;}})();</script>',
-        '<script>var a = 0;</script>',
         '<script src="/static/js/bootstrap.min.js?v=3.3.6"></script>',
         '<script src="/static/js/jquery.ba-hashchange.min.js"></script>',
         '<script src="/static/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>',
@@ -59,6 +59,7 @@ class ListBuilder
         '<script src="/static/js/plugins/bootstrap-table/extensions/export/FileSaver.min.js"></script>',
         '<script src="/static/js/plugins/layer/layer.min.js"></script>',
         '<script src="/static/js/plugins/toastr/toastr.min.js"></script>',
+        '<script src="/static/js/content.js"></script>',
         '<script src="/static/js/demo/bootstrap-table-demo.js"></script>'
     ];
 
@@ -67,6 +68,15 @@ class ListBuilder
         $this->module_name = request()->module();
         $this->controller_name = request()->controller();
         $this->action_name = request()->action();
+    }
+
+    /**
+     * 设置默认行数
+     */
+    public function setPageSize($limit)
+    {
+        $this->_default_page_size = $limit;
+        return $this;
     }
 
     /**
@@ -252,13 +262,25 @@ class ListBuilder
     }
 
     /**
-     * 设置搜索参数
-     * @param $title
-     * @param $url
+     * 加入一个搜索项
+     * @param $name 表单名
+     * @param $type 表单类型
+     * @param $title 表单标题
+     * @param $tip 表单提示说明
+     * @param $must 是否必填
+     * @param $options 表单options
+     * @param $find_type 条件查询类型
      * @return $this
      */
-    public function setSearch($title, $url) {
-        $this->_search = array('title' => $title, 'url' => $url);
+    public function addSearchColumn($name, $type, $title, $tip = '', $options = [], $find_type = '=')
+    {
+        $item['name'] = $name;
+        $item['type'] = $type;
+        $item['title'] = $title;
+        $item['tip'] = $tip;
+        $item['options'] = $options;
+        $item['find_type'] = $find_type;
+        $this->_search_column_list[] = $item;
         return $this;
     }
 
@@ -272,7 +294,8 @@ class ListBuilder
      * @return $this
      *
      */
-    public function setTabNav($tab_list, $current_tab) {
+    public function setTabNav($tab_list, $current_tab)
+    {
         $this->_tab_nav = array(
             'tab_list' => $tab_list,
             'current_tab' => $current_tab
@@ -284,7 +307,8 @@ class ListBuilder
      * 加一个表格标题字段
      *
      */
-    public function addTableColumn($name, $title, $type = null, $param = null, $align = 'left', $sortable = false) {
+    public function addTableColumn($name, $title, $type = null, $param = null, $align = 'left', $sortable = false)
+    {
         $column = array(
             'name'  => $name,
             'title' => $title,
@@ -305,7 +329,8 @@ class ListBuilder
      * @param array  $attr 按钮属性，一个定了标题/链接/CSS类名等的属性描述数组
      * @return $this
      */
-    public function addRightButton($type, $attribute = null) {
+    public function addRightButton($type, $attribute = null)
+    {
         switch ($type) {
             case 'edit':  // 编辑按钮
                 // 预定义按钮属性以简化使用
@@ -399,7 +424,8 @@ class ListBuilder
      * @param $page
      * @return $this
      */
-    public function alterTableData($condition, $alter_data) {
+    public function alterTableData($condition, $alter_data)
+    {
         $this->_alter_data_list[] = array(
             'condition' => $condition,
             'alter_data' => $alter_data
@@ -413,7 +439,8 @@ class ListBuilder
      * @return $this
      *
      */
-    public function setExtraHtml($extra_html) {
+    public function setExtraHtml($extra_html)
+    {
         $this->_extra_html = $extra_html;
         return $this;
     }
@@ -421,14 +448,16 @@ class ListBuilder
     /*
      * 添加CSS文件
      */
-    private function pushCssFile($file){
+    private function pushCssFile($file)
+    {
         if(!in_array($file, $this->_css_file_list))array_push($this->_css_file_list, $file);
     }
 
     /*
      * 添加JS文件
      */
-    private function pushJSFile($file){
+    private function pushJSFile($file)
+    {
         if(!in_array($file, $this->_js_file_list))array_push($this->_js_file_list, $file);
     }
 
@@ -492,6 +521,8 @@ class ListBuilder
     private function getTableHtml()
     {
         $html_js_content = '<script>';
+        //默认页数
+        $html_js_content .= 'pageSize = '.$this->_default_page_size.';';
         //获取列表内容的URL
         $html_js_content .= 'var getListUrl = "'.url($this->module_name.'/'.$this->controller_name.'/'.$this->action_name).'";';
         //拼接展示的字段内容
@@ -538,14 +569,91 @@ class ListBuilder
                 .glyphicon-remove{color:red;}
                 .glyphicon-ban-circle{color:red;}
                 .glyphicon-ok{color:green;}
+                .search-box .control-label{text-align: right;text-align: right;height: 39px;line-height: 35px;}
+                .search-box .form-group{margin-bottom: 15px;}
+                .search-box .ibox{margin-bottom: 0px;}
                 </style>
             </head>
             
             <body class="gray-bg">
                 <div class="wrapper wrapper-content animated fadeInRight">
                     <div class="ibox float-e-margins">
-                        <div class="row row-lg">
         ';
+    }
+
+    /*
+     * 获取搜索部分内容
+     */
+    private function searchHtmlContent()
+    {
+        $cout_search_list = count($this->_search_column_list);
+        if($cout_search_list == 0){
+            $this->pushJSFile('<script>searchStatus = false;</script>');
+            return '';
+        }
+        if($cout_search_list == 1){
+            $this->pushJSFile('<script>searchField = "'.$this->_search_column_list[0]['name'].'";searchStatus = true;</script>');
+            return '';
+        } else {
+            $this->pushJSFile('<script>searchStatus = false;$(".fa-chevron-up").click();</script>');
+            $search_html = '<div class="row search-box">
+                <div class="col-sm-12">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title">
+                            <h5>搜索条件</h5>
+                            <div class="ibox-tools">
+                                <a style="color:#000;" title="点击进行搜索" class="dropdown-toggle" href="javascript:;">
+                                    搜索
+                                </a>
+                                <a style="color:#000;" title="点击重置搜索条件" class="clean-search" href="javascript:;">
+                                    重置
+                                </a>
+                                　
+                                <a class="collapse-link">
+                                    <i class="fa fa-chevron-up"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="ibox-content">
+                            <form id="ibox-search-form" method="get" role="form" class="form-inline">';
+
+            foreach($this->_search_column_list as $search_item){
+                $search_html .= '<div class="form-group col-sm-4">
+                                    <label class="col-sm-4 control-label">'.$search_item['title'].'：</label>
+                                    <div class="col-sm-8">';
+                    switch ($search_item['type']){
+                        case 'select':
+                            if(!is_array($search_item['options'])
+                                || count($search_item['options']) == 0)continue;
+                            $search_html .= '<select class="formbuilder-select form-control m-b" name="'.$search_item['name'].'">
+                                                <option value="">请选择'.$search_item['title'].'</option>';
+                            foreach($search_item['options'] as $key => $option){
+                                $search_html .= '<option value="'.$key.'">'.$option.'</options>';
+                            }
+                            $search_html .= '</select>';
+                            break;
+                        case 'datetime':
+                            $format = empty($search_item['options']['format']) ? 'YYYY-MM-DD' : $search_item['options']['format'];
+                            $search_html .= '<input readonly onclick="laydate({istime: true, format: \''.$format.'\'})" id="layer-date-'.$search_item['name'].'" name="'.$search_item['name'].'" type="text"  class="formbuilder-input form-control layer-date" >';
+                            $this->pushJSFile('<script src="/static/js/plugins/layer/laydate/laydate.js"></script>');
+                            break;
+
+                        default:
+                            $search_html .= '<input type="text" name="'.$search_item['name'].'" placeholder="'.$search_item['name'].'" class="form-control">';
+                    }
+                                        $search_html .= '<span class="help-block m-b-none">'.$search_item['tip'].'</span>';
+                $search_html .= '   </div>
+                                </div>';
+            }
+
+            $search_html .= '   <div style="clear:both;"></div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>';
+        }
+        return $search_html;
     }
 
     /*
@@ -553,35 +661,13 @@ class ListBuilder
      */
     private function getBottomHtmlContent()
     {
-        return '        </div>
+        return '        
                     </div>
                 </div>
-            '.implode('', $this->_js_file_list).'
+                '.implode('', $this->_js_file_list).'
             </body>
         </html>
         ';
-    }
-
-    /**
-     * 显示页面内容
-     * @return string
-     */
-    public function display()
-    {
-        $html_content = $this->getTopHtmlContent();
-
-        $html_content .= '<div class="col-sm-12">
-                            <div class="example-wrap">
-                                <h4 class="example-title">'.$this->_meta_title.'</h4>
-                                    <div class="example">';
-        $html_content .= $this->getTopButtonHtml();
-        $html_content .= $this->getTableHtml();
-
-        $html_content .= '</div></div></div>';
-        $html_content .= $this->_extra_html;
-        $html_content .= $this->getBottomHtmlContent();
-
-        return $html_content;
     }
 
     /*
@@ -598,37 +684,11 @@ class ListBuilder
         return array_unique($fields);
     }
 
-    /**
-     * 判断显示列表或返回列表内容
-     */
-    public function show()
-    {
-        $limit = request()->get('limit');
-        $offset = request()->get('offset', 0);
-        $order = request()->get('order');
-        $ordername = request()->get('ordername');
-
-        if(!empty($limit) && !empty($order)){
-            if(!empty($ordername)){
-                $order = $ordername.' '.$order;
-            } else {
-                $order = $this->table_pk.' '.$order;
-            }
-            $field = implode(',', $this->getShowField());
-            $list['rows'] = Db::name($this->table_name)->field($field)->limit($offset, $limit)->order($order)->select();
-            $list['total'] = Db::name($this->table_name)->count();
-            //处理list数据
-            $return = $this->getListReturn($list);
-            return $return;
-        } else {
-            return $this->display();
-        }
-    }
-
     /*
      * 处理要返回的列表内容
      */
-    public function getListReturn($list){
+    public function getListReturn($list)
+    {
         if(count($list) == 0 || count($this->_table_column_list) == 0)return $list;
 
         $data_list = [];
@@ -683,6 +743,92 @@ class ListBuilder
         }
         $list['rows'] = $data_list;
         return $list;
+    }
+
+    /**
+     * 显示自定义页面
+     */
+    public function definedDisplay()
+    {
+        $html_content = $this->getTopHtmlContent();
+
+        $html_content .= $this->searchHtmlContent();
+
+        $html_content .= '<div class="row row-lg">
+                            <div class="col-sm-12">
+                                <div class="example-wrap">
+                                    <!--<h4 class="example-title">'.$this->_meta_title.'</h4>-->
+                                        <div class="example">';
+        $html_content .= $this->getTopButtonHtml();
+        $html_content .= $this->_extra_html;
+        $html_content .= '</div></div></div></div>';
+        $html_content .= $this->getBottomHtmlContent();
+        return $html_content;
+    }
+
+    /**
+     * 显示页面内容
+     * @return string
+     */
+    public function display()
+    {
+        $html_content = $this->getTopHtmlContent();
+
+        $html_content .= $this->searchHtmlContent();
+
+        $html_content .= '<div class="row row-lg">
+                            <div class="col-sm-12">
+                                <div class="example-wrap">
+                                    <!--<h4 class="example-title">'.$this->_meta_title.'</h4>-->
+                                        <div class="example">';
+        $html_content .= $this->getTopButtonHtml();
+        $html_content .= $this->getTableHtml();
+
+        $html_content .= '</div></div></div></div>';
+        $html_content .= $this->_extra_html;
+        $html_content .= $this->getBottomHtmlContent();
+
+        return $html_content;
+    }
+
+    /**
+     * 判断显示列表或返回列表内容
+     */
+    public function show()
+    {
+        $limit = request()->get('limit');
+        $offset = request()->get('offset', 0);
+        $order = request()->get('order');
+        $ordername = request()->get('ordername');
+
+        if(request()->isAjax()){
+            if(!empty($ordername)){
+                $order = $ordername.' '.$order;
+            } else {
+                $order = $this->table_pk.' '.$order;
+            }
+
+            $where = [];
+            foreach($this->_search_column_list as $search_item){
+                $val = request()->get($search_item['name']);
+                if($val !== null){
+                    if($search_item['find_type'] == 'like'){
+                        $where[] = [$search_item['name'], $search_item['find_type'], "%{$val}%"];
+                    } else {
+                        $where[] = [$search_item['name'], $search_item['find_type'], $val];
+                    }
+                }
+            }
+
+            $field = implode(',', $this->getShowField());
+            $list['rows'] = Db::name($this->table_name)->where($where)->field($field)->limit($offset, $limit)->order($order)->select();
+            $list['total'] = Db::name($this->table_name)->where($where)->count();
+            //处理list数据
+            $return = $this->getListReturn($list);
+            return $return;
+        } else {
+            return $this->display();
+        }
     }
 
     /**

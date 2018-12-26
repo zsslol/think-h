@@ -3723,7 +3723,8 @@ nav.page-tabs .page-tabs-content {
 }
 
 #content-main {
-    height: calc(100% - 140px);
+    /*height: calc(100% - 140px);*/
+    height: calc(100% - 103px);
     overflow: hidden;
 }
 
@@ -5739,7 +5740,8 @@ del {
 
 #small-chat {
     position: fixed;
-    bottom: 50px;
+    /*bottom: 50px;*/
+    bottom: 60px;
     right: 26px;
     z-index: 100;
 }

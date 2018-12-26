@@ -11,14 +11,6 @@ class Index extends Controller
         return $this->fetch();
     }
 
-    private function ajaxReturnData($msg, $type = 'success')
-    {
-        sleep(2);
-        $return['msg'] = $msg;
-        $return['code'] = $type == 'success' ? 200 : 0;
-        return $return;
-    }
-
     public function delete()
     {
         return $this->ajaxReturnData('操作失败', 'error');
@@ -60,17 +52,22 @@ class Index extends Controller
     {
         $listBuilder = new \builder\ListBuilder();
         return $listBuilder->setMetaTitle('设备列表')  // 设置页面标题
-            ->setTableInfo('demo')
+            ->addSearchColumn('id', 'text', 'ID')
+            ->addSearchColumn('create_time', 'datetime', '添加时间', '点击选择时间', ['format' => 'YYYY-MM-DD hh:mm:ss'])
+            ->addSearchColumn('status', 'select', '状态', '', ['1' => '启用', 0=>'禁用'])
+            ->setTableInfo('permissions')
             ->addTopButton('create')   // 添加新增按钮
             ->addTopButton('resume')   // 添加启用按钮
             ->addTopButton('forbid')   // 添加禁用按钮
             ->addTopButton('delete')   // 添加删除按钮
             ->addTopButton('create',array("title"=>"Excel导入","href"=>url('importexcel')))   // 添加删除按钮
             ->addTableColumn('id', 'ID', '', '', 'right', true)
-            ->addTableColumn('rid', '设备ID', '', '', 'left', true)
-            ->addTableColumn('create_time', '添加时间', '', '', 'center')
+            ->addTableColumn('description', '菜单名称', '', '', 'left', true)
+            ->addTableColumn('level', '级别', '', '', 'center', true)
             ->addTableColumn('status', '状态', 'status', '', 'center', true)
-            ->addTableColumn('right_button', '操作','right_button', '','center')
+            ->addTableColumn('sort_order', '排序', '', '', 'center', true)
+            ->addTableColumn('updated_at', '最后更新时间', '', '', 'center', true)
+            ->addTableColumn('right_button', '操作','right_button', '','center', true)
             ->addRightButton('edit')// 添加编辑按钮
             ->addRightButton('forbid') // 添加禁用/启用按钮
             ->addRightButton('delete')// 添加删除按钮

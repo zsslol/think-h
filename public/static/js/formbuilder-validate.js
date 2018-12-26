@@ -1,6 +1,4 @@
 $(document).ready(function () {
-    var layer_index = parent.layer.getFrameIndex(window.name);
-    parent.layer.iframeAuto(layer_index);
 	$(".i-checks").iCheck({
 		checkboxClass: "icheckbox_square-green",
 		radioClass: "iradio_square-green",
@@ -21,6 +19,7 @@ $(document).ready(function () {
         iboxContent.find(".formbuilder-input").each(function(){
             var thisObj = $(this);
             var value = $.trim(thisObj.val());
+            console.log(validateField(thisObj.attr("name"), value, thisObj ));
             if(validateField(thisObj.attr("name"), value, thisObj )){
                 data[thisObj.attr("name")] = value;
                 thisObj.val(value);
@@ -28,7 +27,7 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-
+        
         //验证下拉列表元素
         iboxContent.find(".formbuilder-select").each(function(){
             var thisObj = $(this);
@@ -38,18 +37,18 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-
+        console.log(submitSuccess);
         //验证单选元素
         iboxContent.find(".formbuilder-radio").each(function(){
             var thisObj = $(this);
-            var value = $("input[type='"+thisObj.attr("name")+"']:checked").val();
+            var value = $("input[name='"+thisObj.attr("name")+"']:checked").val();
             if(validateField(thisObj.attr("name"), value)){
                 data[thisObj.attr("name")] = value;
             } else {
                 submitSuccess = false;
             }
         });
-
+        console.log(submitSuccess);
         //验证多选元素
         iboxContent.find(".formbuilder-checkbox").each(function(){
             var thisObj = $(this);
@@ -64,7 +63,7 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-
+        console.log(submitSuccess);
         //验证文本域元素
         iboxContent.find(".formbuilder-textarea").each(function(){
             var thisObj = $(this);
@@ -74,7 +73,7 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-
+        console.log(submitSuccess);
         //验证富文本编辑器元素
         iboxContent.find(".formbuilder-editor").each(function(){
             var thisObj = $(this);
@@ -85,7 +84,7 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-
+        console.log(submitSuccess);
         if(submitSuccess == false)return false;
 
         var formObj = $('.form-horizontal');
@@ -127,7 +126,7 @@ $(document).ready(function () {
         if(formGroupObj.find('.must').length > 0 && ( val == '' || typeof (val) == "undefined") ){
             // formGroupObj.addClass('has-warning');
             formGroupObj.addClass('has-error');
-            tipsObj.html('此项为必须');
+            tipsObj.html('请填写此项信息');
             return false;
         } else {
             if(typeof(InputObj) != 'undefined'){
@@ -212,6 +211,9 @@ $(document).ready(function () {
             return msg;
         }
     }
+
+    var layer_index = parent.layer.getFrameIndex(window.name);
+    parent.layer.iframeAuto(layer_index);
 });
 
 	
