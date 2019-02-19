@@ -178,7 +178,7 @@
     '      [meta "@reverse"]: [string "@beFavoriteOf"]',
     '    },',
     '    [property "nick"]: { [meta "@container"]: [meta "@set"] },',
-    '    [property "nick"]: { [meta "@container"]: [meta "@index"] }',
+    '    [property "nick"]: { [meta "@container"]: [meta "@Index"] }',
     '  },',
     '  [meta "@graph"]: [[ {',
     '    [meta "@id"]: [string "http://dbpedia.builder/resource/John_Lennon"],',

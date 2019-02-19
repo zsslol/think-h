@@ -4,13 +4,56 @@ $(document).ready(function () {
 		radioClass: "iradio_square-green",
 	});
 
+	var iboxClass = '.ibox-content';
+
 	//提交按钮点击事件
 	$(".btn-form-submit").click(function(){
-        validateForm('.ibox-content');
+        submitPre();
+        // validateForm();
 	});
 
+	//处理前置操作
+    function submitPre(){
+        var iboxContent = $(iboxClass);
+        var submitObj = iboxContent.find('.btn-form-submit');
+        var waveObj = iboxContent.find('.sk-spinner-wave');
+        submitObj.css('display', 'none');
+        waveObj.css('display', 'block');
+
+        var submitPreBox = $('#submit_pre_box');
+        submitPreBox.html('');
+
+        var submitPreVal = $('input[name="submit_pre"]').val();
+        if(submitPreVal != "") {
+            submitPreList = submitPreVal.split(',');
+            if(submitPreVal.length > 0) {
+                for (var submitPreKey = 0; submitPreKey< submitPreVal.length; submitPreKey++){
+                    if(typeof (submitPreList[submitPreKey]) != 'undefined' && submitPreList[submitPreKey] != ""){
+                        submitPreBox.append('<input name="'+submitPreList[submitPreKey]+'" type="hidden" value="0" />');
+                        submitPreList[submitPreKey];
+                    }
+                }
+            }
+        }
+        setTimeout(checkSubmitPreFunction, 100);
+    }
+
+    function checkSubmitPreFunction(){
+        var submitStatus = true;
+        $('#submit_pre_box').children('input').each(function(){
+           if($(this).val() == 0) submitStatus = false;
+        });
+
+        if(submitStatus){
+            validateForm();
+        } else {
+            setTimeout(checkSubmitPreFunction, 100);
+        }
+
+    }
+
 	//验证完整表单
-	function validateForm(iboxClass) {
+	function validateForm() {
         var submitSuccess = true;
         var data = {};
         var iboxContent = $(iboxClass);
@@ -19,7 +62,7 @@ $(document).ready(function () {
         iboxContent.find(".formbuilder-input").each(function(){
             var thisObj = $(this);
             var value = $.trim(thisObj.val());
-            console.log(validateField(thisObj.attr("name"), value, thisObj ));
+
             if(validateField(thisObj.attr("name"), value, thisObj )){
                 data[thisObj.attr("name")] = value;
                 thisObj.val(value);
@@ -37,7 +80,6 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-        console.log(submitSuccess);
         //验证单选元素
         iboxContent.find(".formbuilder-radio").each(function(){
             var thisObj = $(this);
@@ -48,7 +90,6 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-        console.log(submitSuccess);
         //验证多选元素
         iboxContent.find(".formbuilder-checkbox").each(function(){
             var thisObj = $(this);
@@ -63,7 +104,6 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-        console.log(submitSuccess);
         //验证文本域元素
         iboxContent.find(".formbuilder-textarea").each(function(){
             var thisObj = $(this);
@@ -73,7 +113,6 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-        console.log(submitSuccess);
         //验证富文本编辑器元素
         iboxContent.find(".formbuilder-editor").each(function(){
             var thisObj = $(this);
@@ -84,16 +123,22 @@ $(document).ready(function () {
                 submitSuccess = false;
             }
         });
-        console.log(submitSuccess);
-        if(submitSuccess == false)return false;
+
+        //控制提交按钮状态，防止重复提交
+        var submitObj = iboxContent.find('.btn-form-submit');
+        var waveObj = iboxContent.find('.sk-spinner-wave');
+
+        if(submitSuccess == false){
+            submitObj.css('display', 'block');
+            waveObj.css('display', 'none');
+            parent.layer.msg('验证未通过，请检查表单后提交');
+            return false;
+        }
 
         var formObj = $('.form-horizontal');
 
         var ajaxSubmit = formObj.attr('ajax-submit');
         var ajaxUrl = formObj.attr('action');
-        //控制提交按钮状态，防止重复提交
-        var submitObj = iboxContent.find('.btn-form-submit');
-        var waveObj = iboxContent.find('.sk-spinner-wave');
 
         submitObj.css('display', 'none');
         waveObj.css('display', 'block');
@@ -108,10 +153,17 @@ $(document).ready(function () {
             submitObj.css('display', 'block');
             waveObj.css('display', 'none');
 
-            parent.tableDataRefresh();
-            parent.toastr.clear();
-            parent.toastr.success('提交成功');
-            parent.layer.close(layer_index);
+            if(result.code == 200){
+                if(typeof (parent.tableDataRefresh()) != 'undefined') {
+                    parent.tableDataRefresh();
+                }
+                parent.toastr.clear();
+                parent.toastr.success(result.msg);
+                parent.layer.close(layer_index);
+            } else {
+                parent.toastr.clear();
+                parent.toastr.error(result.msg);
+            }
         }, 'JSON').error(function(){
             submitObj.css('display', 'block');
             waveObj.css('display', 'none');
@@ -176,8 +228,9 @@ $(document).ready(function () {
                 var msg = '请输入汉字';
             break;
             case 'username':
-                var regular = /^[a-zA-Z0-9_-]{4,16}$/;
-                var msg = '请输入正确格式的用户名(字母数组组合)，4-16位长度';
+                // var regular = /^[a-zA-Z0-9_-]$/;
+                var regular = /^\w+$/;
+                var msg = '请输入正确格式的用户名(字母数组组合)';
             break;
             case 'password':
                 var regular = /^.*(?=.{6,32})(?=.*\d)(?=.*[A-Z])(?=.*[a-z]).*$/;
@@ -196,13 +249,16 @@ $(document).ready(function () {
                 var msg = '请输入正确的车牌';
             break;
             default:
-                return true;
+                var regular = /^.*[^\s]+.*$/;
+                var msg = '请输入此项';
+                break;
         }
         return validateData(regular, val, minLength, maxLength, msg);
     }
 
     //正则匹配与长度验证
     function validateData(regular, val, minLength, maxLength, msg){
+
         if(regular.test(val)){
             if(typeof(minLength) != 'undefined' && val.length < minLength)return '此项最少输入'+minLength+'位';
             if(typeof(maxLength) != 'undefined' && val.length > maxLength)return '此项最多输入'+maxLength+'位';

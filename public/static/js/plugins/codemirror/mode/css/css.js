@@ -364,7 +364,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "min-device-height", "max-device-height", "aspect-ratio",
     "min-aspect-ratio", "max-aspect-ratio", "device-aspect-ratio",
     "min-device-aspect-ratio", "max-device-aspect-ratio", "color", "min-color",
-    "max-color", "color-index", "min-color-index", "max-color-index",
+    "max-color", "color-Index", "min-color-Index", "max-color-Index",
     "monochrome", "min-monochrome", "max-monochrome", "resolution",
     "min-resolution", "max-resolution", "scan", "grid"
   ], mediaFeatures = keySet(mediaFeatures_);
@@ -419,7 +419,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "margin-bottom", "margin-left", "margin-right", "margin-top",
     "marker-offset", "marks", "marquee-direction", "marquee-loop",
     "marquee-play-count", "marquee-speed", "marquee-style", "max-height",
-    "max-width", "min-height", "min-width", "move-to", "nav-down", "nav-index",
+    "max-width", "min-height", "min-width", "move-to", "nav-down", "nav-Index",
     "nav-left", "nav-right", "nav-up", "object-fit", "object-position",
     "opacity", "order", "orphans", "outline",
     "outline-color", "outline-offset", "outline-style", "outline-width",

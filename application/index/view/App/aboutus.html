@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
+    <title>关于我们与帮助</title>
+    <style type="text/css">
+        body{font-size:12px;margin: 0px;}
+        .users-title{padding:0px; margin: 0px; height: 40px;background-color: #ffa500; font-size:1.5em; text-align: center; line-height: 40px; color: #fdfbff;position: relative}
+        .content ul{padding: 0px; margin: 0px;margin-top: 10px}
+        .content ul li{text-decoration: none;list-style: none; border-bottom: #f0f0f0 1px solid; padding: 10px;padding-left: 10px; position: relative}
+        .content ul li a{text-decoration:none;color: #0a0a0a;display:block;width:80%;}
+        .content ul li img{position: absolute;top:7px; right: 5px;}
+    </style>
+</head>
+<body>
+<div class="content" style="padding: 10px; font-size:1.4em; line-height: 1.6em">
+    <div class="img-logo" style="width:100%;text-align: center">
+        <img src="__HOME_IMG__/logo-img.png" width="80">
+    </div>
+    <ul>
+        <li><a href="{:U('Home/App/details',array('id'=>50))}">关于我们</a> <img src="__HOME_IMG__/arrow.png"></li>
+        <li><a href="{:U('Home/App/details',array('id'=>55))}">功能介绍</a> <img src="__HOME_IMG__/arrow.png"></li>
+        <li><a href="{:U('Home/App/newslist',array('cateid'=>5))}">常见问题</a> <img src="__HOME_IMG__/arrow.png"></li>
+        <!--<li><a href="{:U('Home/App/feedback')}">反馈</a> <img src="__HOME_IMG__/arrow.png"></li>-->
+    </ul>
+</div>
+</body>
+</html>

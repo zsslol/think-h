@@ -26,3 +26,159 @@
 	pointer-events:none;
 }
 
+.upload-picture-item .remove-picture{
+	position: relative;
+    right: 22px;
+    top: -8px;
+    clear: both;
+    color: #000;
+    font-size: 16px;
+}
+
+.upload-picture-item{
+	width:auto;
+	float:left;
+}
+
+.upload-picture-item img{
+	padding:5px;
+	border:1px solid #e6e6e6;
+	margin:0 15px 15px 0;
+	min-width:100px;
+	min-height:100px;
+	max-width:300px;
+	max-height:300px;
+	float:left;
+}
+
+.upload-picture-item .progress{
+	display:none;
+}
+
+.upload-picture-item .infos .upload-message{
+    position: relative;
+    top: -45px;
+    background-color: #fff;
+    height: 25px;
+    line-height: 25px;
+    left: 1px;
+    width: calc(100% -5px);
+    text-align: center;
+}
+
+.upload-picture-item .infos{
+	clear: both;
+    width: calc(100% - 15px);
+    margin-top: -25px;
+	height:15px;
+}
+
+.upload-picture-item .infos .progress-striped{
+	position: relative;
+    top: -35px;
+	
+}
+
+
+
+.upload-pictures-item .remove-picture{
+	position: relative;
+    right: 22px;
+    top: -8px;
+    clear: both;
+    color: #000;
+    font-size: 16px;
+}
+
+.upload-pictures-item{
+	width:auto;
+	float:left;
+}
+
+.upload-pictures-item img{
+	padding:5px;
+	border:1px solid #e6e6e6;
+	margin:0 15px 15px 0;
+	width:200px;
+	height:200px;
+	float:left;
+}
+
+.upload-pictures-item .progress{
+	display:none;
+}
+
+.upload-pictures-item .infos .upload-message{
+    position: relative;
+    top: -45px;
+    background-color: #fff;
+    height: 25px;
+    line-height: 25px;
+    left: 1px;
+    width: calc(100% -5px);
+    text-align: center;
+}
+
+.upload-pictures-item .infos{
+	clear: both;
+    width: 200px;;
+    margin-top: -25px;
+	height:15px;
+}
+
+.upload-pictures-item .infos .progress-striped{
+	position: relative;
+    top: -35px;
+	
+}
+
+.upload-file-item .table{
+	max-width:500px;
+}
+.upload-file-item .table th{
+	word-wrap: break-word;
+    word-break: break-all;
+}
+.upload-file-item{
+	width:auto;
+	float:left;
+}
+
+.upload-file-item .file_item{
+	display:inline-block;
+	padding:8px;
+	border:1px solid #e6e6e6;
+	margin:0 15px 15px 0;
+}
+
+.upload-file-item .progress{
+	display:none;
+}
+
+.upload-file-item .infos .upload-message{
+    position: relative;
+    top: -25px;
+    background-color: #fff;
+    height: 25px;
+    line-height: 25px;
+    left: 1px;
+    width: calc(100% -5px);
+    text-align: center;
+}
+
+.upload-file-item .infos{
+	clear: both;
+    width: calc(100% - 15px);
+    margin-top: -25px;
+	height:15px;
+}
+
+.upload-file-item .infos .progress-striped{
+	position: relative;
+    top: -35px;
+	
+}
+
+
+
+

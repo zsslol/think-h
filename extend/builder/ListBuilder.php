@@ -572,6 +572,8 @@ class ListBuilder
                 .search-box .control-label{text-align: right;text-align: right;height: 39px;line-height: 35px;}
                 .search-box .form-group{margin-bottom: 15px;}
                 .search-box .ibox{margin-bottom: 0px;}
+                .listbuilder-tr-picture{width:40px; height:40px;}
+                #ibox-search-form .m-b{margin:0px;}
                 </style>
             </head>
             
@@ -639,7 +641,7 @@ class ListBuilder
                             break;
 
                         default:
-                            $search_html .= '<input type="text" name="'.$search_item['name'].'" placeholder="'.$search_item['name'].'" class="form-control">';
+                            $search_html .= '<input type="text" name="'.$search_item['name'].'" placeholder="'.$search_item['title'].'" class="form-control">';
                     }
                                         $search_html .= '<span class="help-block m-b-none">'.$search_item['tip'].'</span>';
                 $search_html .= '   </div>
@@ -665,6 +667,35 @@ class ListBuilder
                     </div>
                 </div>
                 '.implode('', $this->_js_file_list).'
+                <script>
+                    $(function(){
+                        var layerTipsObj;
+                        $(".fixed-table-container").on("mouseover", ".listbuilder-tr-picture", function(){
+                            var thisImgObj = $(this);
+                            layerTipsObj = layer.tips(\'<img width="100%" src="\'+thisImgObj.attr("src")+\'" />\',thisImgObj, {
+                                time:0,
+                                tips:2,
+                                area: \'40%\',
+                                skin: \'layui-layer-nobg\', //没有背景色
+                            });
+                        });
+                        $(".fixed-table-container").on("click", ".listbuilder-tr-picture", function(){
+                            var thisImgObj = $(this);
+                            layer.open({
+                              type: 1,
+                              title: false,
+                              closeBtn: 1,
+                              area: \'60%\',
+                              skin: \'layui-layer-nobg\', //没有背景色
+                              shadeClose: true,
+                              content: \'<img width="100%" src="\'+thisImgObj.attr("src")+\'" />\'
+                            });
+                        });
+                        $(".fixed-table-container").on("mouseout", ".listbuilder-tr-picture", function(){
+                            layer.close(layerTipsObj);
+                        });
+                    });
+                </script>
             </body>
         </html>
         ';
@@ -673,7 +704,7 @@ class ListBuilder
     /*
      * 取出要显示的字段
      */
-    private function getShowField()
+    public function getShowField()
     {
         $fields = [$this->table_pk];
         if( count($this->_table_column_list) > 0){
@@ -717,17 +748,20 @@ class ListBuilder
                     case 'defined_status':
                         $data[$fields['name']] =  $fields['param'][$item[$fields['name']]];
                         break;
+                    case 'picture':
+                        $data[$fields['name']] = '<img title="点击查看大图" class="listbuilder-tr-picture" src="'.getCover($item[$fields['name']]).'" />';
+                        break;
                     case 'icon':
                         $data[$fields['name']] = '<i class="'.$item[$fields['name']].'"></i>';
                         break;
                     case 'date':
-                        $data[$fields['name']] = date('Y-m-d',$item[$fields['name']]);
+                        $data[$fields['name']] = intval($item[$fields['name']]) > 0 ? date('Y-m-d',$item[$fields['name']]) : '-';
                         break;
                     case 'datetime':
-                        $data[$fields['name']] = date('Y-m-d H:i:s',$item[$fields['name']]);
+                        $data[$fields['name']] = intval($item[$fields['name']]) > 0 ? date('Y-m-d H:i:s',$item[$fields['name']]) : '-';
                         break;
                     case 'time':
-                        $data[$fields['name']] = date('H:i:s',$item[$fields['name']]);
+                        $data[$fields['name']] = intval($item[$fields['name']]) > 0 ? date('H:i:s',$item[$fields['name']]) : '-';;
                         break;
                     case 'callback': // 调用函数
                         if (is_array($fields['param'])) {
@@ -739,8 +773,24 @@ class ListBuilder
                         $data[$fields['name']] = $item[$fields['name']];
                 }
             }
+
+            /**
+             * 修改列表数据
+             * 有时候列表数据需要在最终输出前做一次小的修改
+             * 比如管理员列表ID为1的超级管理员右侧编辑按钮不显示删除
+             */
+            if ($this->_alter_data_list) {
+                foreach ($this->_alter_data_list as $alter) {
+                    if ($data[$alter['condition']['key']] === $alter['condition']['value']) {
+                        $data = array_merge($data, $alter['alter_data']);
+                    }
+                }
+            }
+
             array_push($data_list, $data);
         }
+
+
         $list['rows'] = $data_list;
         return $list;
     }
@@ -787,7 +837,6 @@ class ListBuilder
         $html_content .= '</div></div></div></div>';
         $html_content .= $this->_extra_html;
         $html_content .= $this->getBottomHtmlContent();
-
         return $html_content;
     }
 
@@ -798,37 +847,44 @@ class ListBuilder
     {
         $limit = request()->get('limit');
         $offset = request()->get('offset', 0);
-        $order = request()->get('order');
-        $ordername = request()->get('ordername');
 
         if(request()->isAjax()){
-            if(!empty($ordername)){
-                $order = $ordername.' '.$order;
-            } else {
-                $order = $this->table_pk.' '.$order;
-            }
-
-            $where = [];
-            foreach($this->_search_column_list as $search_item){
-                $val = request()->get($search_item['name']);
-                if($val !== null){
-                    if($search_item['find_type'] == 'like'){
-                        $where[] = [$search_item['name'], $search_item['find_type'], "%{$val}%"];
-                    } else {
-                        $where[] = [$search_item['name'], $search_item['find_type'], $val];
-                    }
-                }
-            }
-
+            $order_where = $this->getOrderWhere();
             $field = implode(',', $this->getShowField());
-            $list['rows'] = Db::name($this->table_name)->where($where)->field($field)->limit($offset, $limit)->order($order)->select();
-            $list['total'] = Db::name($this->table_name)->where($where)->count();
+            $list['rows'] = Db::name($this->table_name)->where($order_where['where'])->field($field)->limit($offset, $limit)->order($order_where['order'])->select();
+            $list['total'] = Db::name($this->table_name)->where($order_where['where'])->count();
             //处理list数据
             $return = $this->getListReturn($list);
             return $return;
         } else {
             return $this->display();
         }
+    }
+
+    /**
+     * 获取排序与条件
+     */
+    public function getOrderWhere(){
+        $order = request()->get('order');
+        $ordername = request()->get('ordername');
+        if(!empty($ordername)){
+            $order = $ordername.' '.$order;
+        } else {
+            $order = $this->table_pk.' '.$order;
+        }
+
+        $where = [];
+        foreach($this->_search_column_list as $search_item){
+            $val = request()->get($search_item['name']);
+            if($val !== null){
+                if($search_item['find_type'] == 'like'){
+                    $where[] = [$search_item['name'], $search_item['find_type'], "%{$val}%"];
+                } else {
+                    $where[] = [$search_item['name'], $search_item['find_type'], $val];
+                }
+            }
+        }
+        return ['order' => $order, 'where' => $where];
     }
 
     /**

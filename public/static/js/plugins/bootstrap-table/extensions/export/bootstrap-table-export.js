@@ -106,7 +106,7 @@
                                     var footerCellHtml = $(footerCell).children(".th-inner").first().html();
                                     footerData[that.columns[index].field] = footerCellHtml == '&nbsp;' ? null : footerCellHtml;
 
-                                    // grab footer cell text into cell index-based array
+                                    // grab footer cell text into cell Index-based array
                                     footerHtml.push(footerCellHtml);
                                 });
 

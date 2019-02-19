@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>{$info.title}-{:getAdminConfig('system.WEB_SITE_TITLE')}</title>
+	<meta name="keywords" content="{$info.keywords}">
+	<meta name="description" content="{$info.description}">
+	<link rel="stylesheet" href="/Index/css/detail.css" />
+</head>
+<body>
+{include file="Public/head"/}
+<!--头部结束-->
+
+<!--新闻内容页开始-->
+
+<div class="top-tltle">
+	<h2>当前位置：<a href="/">首页</a> >
+		<a href="{:url('Index/Index/articleList', ['diyname' => $info['diyname']])}">{$info.name}</a> >
+		<span title="{$info.title}">{:strcut($info['title'], 20)}</span>
+	</h2>
+</div>
+
+<hr style="height:1px;border-top:1px solid #ccc;" />
+<div class="row">
+	<div class="news-con">
+		<h2>{$info.title}</h2>
+		<div class="fbz">发布时间：{$info.create_time}</div>
+
+		<div>
+			{$info.content|raw}
+		</div>
+
+        <div class="sxfanp">
+            <p><a href="{$info['previous']['href']}" title="{$info['previous']['title']}">上一篇：{:strcut($info['previous']['title'], 20)}</a></p>
+            <p><a href="{$info['next']['href']}" title="{$info['next']['title']}">下一篇：{:strcut($info['next']['title'], 20)}</a></p>
+        </div>
+	</div>
+</div>
+
+
+
+<!--新闻内容结束-->
+
+
+<!--页脚部分-->
+{include file="Public/foot"/}
+</div>
+<script src="Index/js/jquery.min.js"></script>
+<script src="Index/js/scrolltopcontrol.js"></script>
+</body>
+</html>

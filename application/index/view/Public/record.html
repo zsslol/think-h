@@ -1,0 +1,45 @@
+<table class="table table-bordered table-responsive table-striped table-hover" >
+           <thead>
+               <tr>
+                   <th  style="text-align:center;"></th>
+                   <th  style="text-align:center;">用户名</th>
+                   <th  style="text-align:center;">出价金额</th>                                
+               </tr>
+           </thead>
+           <tbody>
+             <volist name="record" id="red" key="k">
+       		<tr style="height:25px; line-height:25px; font-size:16px; text-align:center;">
+       			<td width="150"><font class='record-now <if condition="$p eq 1 and $k eq 1">bg-orange<else />bg-gray</if>'>领先</font></td>
+       			<td width="150">{$red.nickname}</td>
+       			<td width="250">¥ {$red.money}</td>
+       		</tr>
+       		</volist>
+       		<tr style="text-align:center;" id="record_null"></tr>
+       		<tr style="text-align:center;">
+       			<td colspan="3">
+       				<neq name="p" value="1"><a href="javascript:void(0)" onclick="records({$p},1,{$_REQUEST['id']})">上一页</a>&nbsp;&nbsp;&nbsp;&nbsp;</neq>
+		    		<a href="javascript:void(0)" onclick="records({$p},2,{$_REQUEST['id']})">下一页</a>
+       			</td>
+       		</tr>
+       		</tbody>
+        </table>
+	<script>
+		function records(p, type, id){
+			if(type == 1){
+				if(p-1<=0){
+					p = 1;
+				} else {
+					p = p-1;
+				}		
+			} else {
+				p++;
+			}	
+			$.post("{:U('get_record')}",{p:p,id:id},function(res){
+				if(res.status == 1){
+					$('#record_null').html('<td colspan="3">没有了</td>');
+				} else {
+					$('#records_content').html(res);					
+				}
+			},'json');
+		}
+	</script>

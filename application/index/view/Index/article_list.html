@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{$category.name}-{:getAdminConfig('system.WEB_SITE_TITLE')}</title>
+    <meta name="keywords" content="{$category.keywords}">
+    <meta name="description" content="{$category.description}">
+    <link href="/Index/css/index.css" rel="stylesheet">
+    <link href="/Index/css/focus.css" rel="stylesheet" >
+    <link rel="stylesheet" href="/Index/css/detail.css" />
+    <script type="text/javascript" src="/Index/js/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="/Index/js/jquery.SuperSlide.2.1.1.js"></script>
+    <style type="text/css">
+        .list{list-style-type: circle}
+        .list li{border-bottom: 1px solid #f1f1f1;line-height: 35px;}
+        .list li:before{content:" • "}
+        .pagination{text-align: center;margin-top: 10px;}
+        .pagination li{display: inline-block;border:1px solid #ff9a00;padding:0 4px;margin:0 2px;border-radius: 3px;}
+        .pagination .current,.current a{background: #ff9a00;color:#fff;}
+    </style>
+</head>
+<body>
+{include file="Public/head"/}
+<div class="top-tltle">
+	<h2>当前位置：<a href="/">首页</a> > 
+	<span title="{$category.name}">{$category.name}</span>
+	</h2>
+</div>
+<div class="all-border">
+    <div class="list-img w1002">
+        <img src="/Index/img/bannerlie.jpg">
+    </div>
+</div>
+<div class="list-all w1002">
+    <div class="fl list-left">
+        <!--<h1>关于我们</h1>-->
+        <!--<ul>
+            <li><a href="#">公司简介</a></li>
+            <li><a href="">公司新闻</a></li>
+            <li><a href="">公司团队</a></li>
+            <li><a href="">人员招聘</a></li>
+        </ul>
+        <div class="list-span-all">
+            <span class="lxwm">联系我们</span>
+            <div class="list-span-main">
+                <div class="lx-top">
+                    <span class="span3">
+					<a href="http://wpa.qq.com/msgrd?v=3&uin={:getAdminConfig('system.WEB_SITE_QQ')}&site=qq&menu=yes" target="_blank">{:getAdminConfig('WEB_SITE_QQ')}</a>
+					</span>
+                    <span class="span2">{:getAdminConfig('system.WEB_SITE_EMAIL')}</span>
+                </div>
+                <div class="lx-main">
+                    <div class="span3 fl">
+                        <img src="{:getCover(getAdminConfig('app.WEB_SITE_WEBO_QR'))}">
+                        <span>下载APP</span>
+                    </div>
+                    <div class="span3 fl">
+                        <img src="{:getCover(getAdminConfig('system.WEB_SITE_WECHAT_QR'))}">
+                        <span>关注微信公众号</span>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        </div>
+        -->
+    </div>
+    <div class="fr list-right" style="width:100%;">
+        <div class="list-right-main">
+            <ul class="list">
+                {volist name="data.list" id="article"}
+                    <li><a target="_blank" href="{:url('Index/Index/detail',array('id'=>$article['id']))}">{:strcut($article['title'], 40)}</a></li>
+                {/volist}
+            </ul>
+            {$data.page|raw}
+        </div>
+    </div>
+    <div class="clear10"></div>
+</div>
+
+{include file="Public/foot"/}
+</body>
+</html>

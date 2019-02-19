@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="keywords" content="{:getAdminConfig('WEB_SITE_KEYWORD')}">
+    	<meta name="description" content="{:getAdminConfig('WEB_SITE_DESCRIPTION')}">
+		<title>在你身边</title>
+		<link rel="stylesheet" href="/index/css/swiper.min.css">
+	</head>
+	<body>
+		<div id="page">
+			<!--页头部分-->
+			{include file="Public/head" /}
+			 <div class="banner_1">
+			<!-- Swiper -->
+			<div class="swiper-container">
+				<div class="swiper-wrapper">
+					{volist name="slide_list" id="slide"}
+						<div class="swiper-slide">
+							<a class="banner" href="{$slide.url}" target="_blank">
+								<img src="{$slide.cover}">
+							</a>
+						</div>
+					{/volist}
+				</div>
+				<!-- Add Pagination -->
+			   <div class="swiper-pagination"></div>
+			   <!-- Add Arrows -->
+				<div class="swiper-button-next" tabindex="0" role="button" aria-label="Next slide" aria-disabled="false"></div>
+				<div class="swiper-button-prev" tabindex="0" role="button" aria-label="Previous slide" aria-disabled="true"></div>
+			</div>
+			
+			<!-- Swiper JS -->
+			<script src="/Index/js/swiper.min.js"></script>
+			
+			<!-- Initialize Swiper -->
+			<script>
+			var swiper = new Swiper('.swiper-container', {
+			        pagination: '.swiper-pagination',
+			        paginationClickable: true,
+						nextButton: '.swiper-button-next',
+			        prevButton: '.swiper-button-prev',
+					   loop: true,
+					   autoplay: 5000,
+					   autoplayDisableOnInteraction: false
+			 });
+			</script>
+
+			</div>
+			<!--新闻部分-->
+		
+			<div class="news">
+				<div class="news_a">
+					
+					<h2>
+					<a style="color: #666;" href="{:url('Index/Index/page', ['name' => 'aboutme'])}">
+					公司介绍
+					</a>
+					</h2>
+					<div class="xinwen_box">
+					<a style="color: #666;" href="{:url('Index/Index/page', ['name' => 'aboutme'])}">
+					<img src="/Index/img/news_a.png" alt="公司介绍" />
+					</a>
+					<h3><a style="color: #666;" href="{:url('Index/Index/page', ['name' => 'aboutme'])}">山东新海软件股份有限公司</a></h3>
+					<p><a style="color: #666;" href="{:url('Index/Index/page', ['name' => 'aboutme'])}">山东新海软件股份有限公司立志做领先全国的食品安全信息管理专家，
+					肩负“以互联云服务,助力人民生活美好”的使命，致力于软件研发与应用创新，
+					提供平台运营与食品安全大数据服务，积极融于智慧时代发展。
+					公司现有员工150余人，其中中高级职称20多人，各类专业技术人员60余人。
+					获得“2015年度省级服务业创新团队”称号。公司先后通过了ISO9001、ISO14001、ISO27001、CMMI3、
+					系统集成三级资质、涉密信息系统集成乙级资质...</a>
+					</p>
+					</div>
+					<a href="{:url('Index/Index/page', ['name' => 'aboutme'])}" class="more">MORE+</a>
+				</div>
+				<div class="news_b">
+					<h2>
+					<a style="color:#666;" href="{:url('Index/Index/articleList', ['diyname' => 'hyxw'])}">
+					行业新闻
+					</a>
+					</h2>
+					<div class="xinwen_box">
+						{volist name="hyxw_list" id="hyxw"}
+							<ul>
+								<li>
+									<div class="riqi">
+										<b>{:date('d',strtotime($hyxw['create_time']))}</b>
+										<span>{:date('Y-m',strtotime($hyxw['create_time']))}</span>
+									</div>
+									<h3 title="{$hyxw['title']}"><a target="_blank" href="{:url('Index/Index/detail', ['id' => $hyxw['id']])}">{:strcut($hyxw['title'], 30)}</a></h3>
+									<p>
+										{empty name="$hyxw.description"}
+											{:strcut($hyxw['content'], 70, true)}
+										{else /}
+											{:strcut($hyxw['description'], 70, true)}
+										{/empty}
+									</p>
+								</li>
+							</ul>
+			             {/volist}
+				</div>
+				<a href="{:url('Index/Index/articleList', ['diyname' => 'hyxw'])}" class="more1">MORE+</a>
+				</div>
+				<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin={:getAdminConfig('WEB_SITE_QQ')}&site=qq&menu=yes" class="lianxiwo">
+				</a>
+				
+			</div>
+			<!--页脚部分-->
+			{include file="Public/foot" /}
+		</div>
+	</body>
+</html>

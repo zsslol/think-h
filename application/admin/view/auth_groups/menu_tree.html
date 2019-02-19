@@ -1,0 +1,66 @@
+<div class="form-group form-group-rules">
+    <label class="col-sm-2 control-label"><span class="must">*</span>权限</label>
+    <div class="col-sm-10">
+            <div>
+                {php}echo showItem($data_list, $rule_ids);{/php}
+            </div>
+        <input value="" name="rules" id="rules" type="hidden" class="formbuilder-input form-control ">
+        <span class="help-block m-b-none" _title="角色的权限">角色的权限</span>
+    </div>
+</div>
+
+<script>
+    window.onload=function () {
+        $(function () {
+            //提交前的所需操作
+            var submitPreVal = $('input[name="submit_pre"]').val();
+            $('input[name="submit_pre"]').val(submitPreVal + ',jsTreePutSelected');
+
+            $(".btn-form-submit").click(function(){
+                jsTreePutSelected();
+            });
+
+        });
+    };
+
+    //提交前的操作
+    function jsTreePutSelected(){
+        var ruleIds = [];
+
+        $('.rules-item-checkbox').each(function(){
+            var checkboxStatus = $(this).prop('checked');
+            if(checkboxStatus){
+                var id = $(this).val();
+                if($.inArray(id, ruleIds) < 0){
+                    ruleIds.push(id);
+                }
+            }
+        });
+        $('input[name="rules"]').val(ruleIds.join(','));
+        $('#submit_pre_box input[name="jsTreePutSelected"]').val(1);
+    }
+</script>
+{php}
+function showItem($data, $rule_ids, $lv = 0){
+$px = $lv * 25;
+    if($lv >= 2)echo '<div class="rules-item" style="padding-left:'.$px.'px;">';
+    foreach($data as $item){
+    if($lv < 2)echo '<div class="rules-item" style="padding-left:'.$px.'px;">';
+    echo '
+    <label class="checkbox-inline i-checks">
+        <div class="icheckbox_square-green" style="position: relative;">
+            <input ';
+            if(in_array($item['id'], $rule_ids))echo ' checked ';
+            echo 'class="rules-item-checkbox" type="checkbox" value="'.$item['id'].'" style="position: absolute; opacity: 0;">
+            <ins class="iCheck-helper" style="position: absolute; top: 0%; left: 0%; display: block; width: 100%; height: 100%; margin: 0px; padding: 0px; background: rgb(255, 255, 255); border: 0px; opacity: 0;"></ins>
+        </div>
+        '.$item['title'].'
+    </label>';
+        if(isset($item['children']) && count($item['children']) > 0){
+        showItem($item['children'], $rule_ids, $lv+1);
+        }
+    if($lv < 2)echo '</div>';
+    }
+    if($lv >= 2)echo '</div>';
+}
+{/php}

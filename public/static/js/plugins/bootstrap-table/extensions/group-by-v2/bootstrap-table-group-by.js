@@ -115,7 +115,7 @@
             tableGroups.forEach(function(item){
                 var html = [];
 
-                html.push(sprintf('<tr class="info groupBy expanded" data-group-index="%s">', item.id));
+                html.push(sprintf('<tr class="info groupBy expanded" data-group-Index="%s">', item.id));
 
                 if (that.options.detailView && !that.options.cardView) {
                     html.push('<td class="detail"></td>');
@@ -135,7 +135,7 @@
 
                 html.push('</tr>');
 
-                that.$body.find('tr[data-parent-index='+item.id+']:first').before($(html.join('')));
+                that.$body.find('tr[data-parent-Index='+item.id+']:first').before($(html.join('')));
             });
 
             this.$selectGroup = [];
@@ -146,7 +146,7 @@
                     group: self,
                     item: that.$selectItem.filter(function () {
                         return ($(this).closest('tr').data('parent-index') ===
-                        self.closest('tr').data('group-index'));
+                        self.closest('tr').data('group-Index'));
                     })
                 });
             });
@@ -154,7 +154,7 @@
             this.$container.off('click', '.groupBy')
                 .on('click', '.groupBy', function() {
                     $(this).toggleClass('expanded');
-                    that.$body.find('tr[data-parent-index='+$(this).closest('tr').data('group-index')+']').toggleClass('hidden');
+                    that.$body.find('tr[data-parent-Index='+$(this).closest('tr').data('group-Index')+']').toggleClass('hidden');
                 });
 
             this.$container.off('click', '[name="btSelectGroup"]')
@@ -163,7 +163,7 @@
 
                     var self = $(this);
                     var checked = self.prop('checked');
-                    that[checked ? 'checkGroup' : 'uncheckGroup']($(this).closest('tr').data('group-index'));
+                    that[checked ? 'checkGroup' : 'uncheckGroup']($(this).closest('tr').data('group-Index'));
                 });
         }
 

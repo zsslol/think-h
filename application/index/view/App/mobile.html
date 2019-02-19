@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
+    <title>在你身边下载</title>
+    <style type="text/css">
+        body{font-size:12px;font-family: "Microsoft YaHei"}
+        .shade{position: fixed;top: 0;left: 0; right: 0;bottom: 0;background-color: rgba(0,0,0,0.7);z-index: 4;display:none}
+        .shade img{ width: 40%; position: relative; top: 20px; left: 55%;  }
+        .shade p{color: #fff;text-align: center; position: relative; top: 30px;line-height: 1.5em;font-size: 1.5rem;margin: 0;}
+    </style>
+</head>
+<body>
+<div class="shade">
+    <img src="/Index/img/direction.png" alt="">
+    <p>请点击右上角</p>
+    <p>"在浏览器中打开"或"在safari中打开"来下载</p>
+</div>
+<div style="text-align: center">
+    <img src="/Index/img/app_znsb.png" alt="" style="width: 100%"/>
+    <a href="javascript:download('ios');"><img src="/Index/img/app_btn1.png" alt=""></a>
+    <a href="javascript:download('android');"><img src="/Index/img/app_btn2.png" alt=""></a>
+    <p>{:getAdminConfig('app.WEB_SITE_ICP')} </p>
+    <p>{:getAdminConfig('app.WEB_SITE_COPYRIGHT')}</p>
+</div>
+<script type="text/javascript">
+
+    function download(str){
+        var url = '';
+        switch (str){
+            case 'android':
+                url = "{:getAdminConfig('app.ANDROID_PHONE_URL')}";
+                break;
+            case 'ios':
+                url = "{:getAdminConfig('app.IOS_FILE')}";
+                break;
+        }
+
+        if(isWeiXin()){
+            window.location.href = url;
+        }
+    }
+    function isWeiXin(){
+        var ua = window.navigator.userAgent.toLowerCase();
+        if(ua.match(/MicroMessenger/i) == 'micromessenger'){
+            document.querySelector('.shade').style.display = "block";
+            return false;
+        }else{
+            return true;
+        }
+    }
+</script>
+</body>
+</html>

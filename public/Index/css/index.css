@@ -1,0 +1,109 @@
+/* CSS D0cument */
+html, body, ul, li, p,input,form,th,td,i ,h1,h2,h3,h4,h5 {padding:0; margin:0;}
+body { font-size:13px; font-family: "Microsoft yahei", "微软雅黑"; color:#888; }
+ul,li { list-style-type:none; text-transform:capitalize;}
+img { display: block; margin: 0; padding: 0;}
+.clear { width:100%; height:0; clear:both; line-height:0; font-size:0; margin:0 auto; padding:0; }
+.clear10 { width:100%; height:10px; clear:both; line-height:0; font-size:0; margin:0 auto; padding:0; }
+.clear15 { width:100%; height:15px; clear:both; line-height:0; font-size:0; margin:0 auto; padding:0; }
+a{ text-decoration:none; color:#666; }
+a:hover { color: #f79808; }
+.w1002{ width:1100px; margin:0 auto;}
+.fl{ float:left;}
+.fr{ float:right;}
+.em{text-indent:2em;}
+.mr10{ margin-right:18px;}
+.pt10{ padding-top:10px;}
+.nav-all{ height: 80px; padding-bottom: 1px;  }
+.nav-all .logo{ display:block; width:208px; height:67px; padding:8px;}
+.nav-all .nav { height: 55px; margin-left:100px; }
+.nav li {  float: left; text-align: center; font-size: 16px; margin-right:15px; font-size:18px; margin-top: 2px;margin-bottom: 2px; }
+.nav li a { display:block;padding:25px 25px; color: #4c4c4c; }
+.nav li a.nav-on { background-color: #f79808; color: #FFFFFF; font-weight:800; }
+.nav li a:hover {background-color: #f79808; color: #FFFFFF;  }
+.nav-all .login{ display:block; width:70px; text-align:center; padding-top:20px;}
+.nav-all .login img{ margin:0 auto;}
+.nav-all .login .login-a,.nav-all .login .login-a a{ color:#f79808;}
+.box-1 { width: 1000px; margin: 0 auto; }
+.news-box { width: 700px; float: left; height: 255px; background-color: #ebf6ff; }
+.banner { width:100%; height:429px; padding:0; margin:0}
+.box-1 { width: 1100px; margin: 0 auto; }
+.box-1-span{ width:350px;}
+.box-1-span .box-span-top{ color:#4c4c4c; text-align:left; line-height:50px;}
+.box-1-span .box-span-top h3{font-size:17px; font-weight:normal;}
+.box-1-span .box-span-main{}
+.box-1-span .box-span-main img{ width: 100%; height:204px;}
+.box-1-span .box-span-main .span0{ height:96px; display:block; padding:8px 2px; font-size:13px; line-height:24px;text-indent:2em; color:#666; overflow:hidden;}
+.box-2-bg{ width: 100%; height:400px; background-color: #F9FAF9; padding-top: 5px;margin-top: 20px}
+.box-2 { width: 1100px; margin: 0 auto;  }
+.box-2-span{ width:350px;}
+.box-2-span .box-span-top{ color:#4c4c4c; text-align:left; line-height:50px;}
+.box-2-span .box-span-top h3{font-size:17px; font-weight:normal;}
+.box-2-span .box-span-main{ height: 300px; position: relative}
+.box-2-span .box-span-main a.more{position: absolute;display: block; bottom:0px;right:5px; background:#ff9a00;height: 22px;width: 67px; color: #FFFFFF;text-align:center}
+.box-2-span .box-span-main img{ width: 100%;}
+.box-2-span .box-span-main .spand{ height:96px; display:block; padding:8px 2px; font-size:13px; line-height:24px; color:#666; overflow:hidden;}
+.box-2-span .box-span-main ul{ width:100%; height:315px; overflow:hidden;}
+.box-2-span .box-span-main ul li{ padding-bottom:15px; height:56px; border-bottom:1px solid #ddd;}
+.box-2-span .box-span-main ul li img{ float:left; width:78px;height:58px}
+.box-2-span .box-span-main ul li .tit{ float:right; position:relative; margin-left:6px; width:250px; padding:4px 0; height:44px;}
+.box-2-span .box-span-main ul li .tit a{ line-height:20px;}
+.box-2-span .box-span-main ul li .tit .time{ position:absolute; bottom:0px; right:4px;}
+.lx-top{ padding:10px;}
+.lx-top span{height:30px; font-size:24px; color:#464646; font-weight:600; line-height:40px; padding-left:40px;}
+.lx-top span.span1{ background:url(../img/icon-ph.png) no-repeat left center;}
+.lx-top span.span2{ background:url(../img/icon-em.png) no-repeat left center;}
+.lx-top span.span3 a{   color: #464646; }
+.lx-top span.span3{ background:url(../img/icon-em3.png) no-repeat left center;}
+.lx-main{padding:10px;}
+.lx-main .span3{ width:104px; padding:10px; margin-right:20px;}
+.lx-main .span3  img{ width:103px; height:103px; margin-bottom:10px;}
+.lx-main .span3  span{ display:block; text-align:center;}
+.foot { width: 100%; height: 108px; background-color:#202323; }
+.copy { width: 1002px; margin: 0 auto; padding-top:26px;}
+.copy ul{ width:330px; margin:0 auto;}
+.copy ul li{ padding:0 10px;}
+.copy ul li a{ color:rgba(255,255,255,0.5); font-weight:normal;}
+.copy p {line-height: 25px; text-align:center; color: #fff; font-size: 14px; margin:10px auto 0;  color:rgba(255,255,255,0.5); font-weight:normal;}
+
+
+
+/*添加样式app*/
+.sec-banner{ border-top:1px solid #ccc;list-style: none;width: 100%;height: 660px;background:url(../images/app_bg.png) 4px center no-repeat; background-size:cover; z-index:10; overflow:hidden;}
+.containt-div{ position:relative; display:block; width:1002px; margin:0 auto;}
+.containt-div .baner-01-a{ position:absolute; top:60px; left:20px;display:inline-block; width:50%;}
+.containt-div .baner-01-a img.znsb{ margin:10px 0;}
+.containt-div .baner-01-a .banner-app-all{ padding:10px 50px; margin-top:20px;}
+.containt-div .baner-01-a .banner-app-all span{}
+.containt-div .baner-01-a .banner-app-all span img{ margin: 10px 0;}
+.containt-div .baner-01-b{ position:absolute; top:40px; right:-20px; display:inline-block;}
+
+.all-border{ width:100%; border-top:1px solid #ccc;}
+.all-border .list-img{ padding:10px 0;}
+.list-all .list-left{ width:310px;}
+.list-all .list-left h1{ background:#ff9a00; color:#fff; font-size:20px; font-weight:600; line-height:56px; padding-left:20px;}
+.list-all .list-left ul{ border:1px solid #ddd; border-bottom:none; font-size:16px; margin-bottom:20px;}
+.list-all .list-left ul li{ line-height:52px;padding-left:24px; border-bottom:1px solid #ddd;}
+.list-all .list-left ul li a{ display:inline-block; width:100%; color:#333;}
+.list-all .list-left ul li a:hover{ color:#ff9a00;}
+.list-all .list-left ul li:hover{ background:#fff2c6; border-bottom:1px solid #ff9a00;}
+.list-span-all .lxwm{ line-height:40px; font-size:16px; color:#ff9a00; padding-left:15px;}
+
+/*.list-all .list-right{ width:785px; border:1px solid #ddd; min-height:300px;}*/
+.list-all .list-right{ border:1px solid #ddd; min-height:400px;}
+.list-right-top{ line-height:54px; height:54px; font-size:16px; padding-left:15px; border-bottom:1px solid #ddd;}
+.list-right-top span.h1{ padding:0 10px;}
+.list-right-main{ padding: 25px 20px; line-height: 25px; font-size: 14px}
+.list-right-main p{ text-indent:2em; line-height:30px; color:#333;}
+.list-main{ border:1px solid #ddd; min-height:300px;}
+.list-main .list-all-top{ line-height:54px; height:54px; font-size:16px; padding-left:15px; border-bottom:1px solid #ddd;}
+.list-main .list-all-top span.h1{ padding:0 10px;}
+.list-main ul{ }
+.list-main ul li{ padding:20px;}
+.list-main ul li:hover{ background:#eee;}
+.list-main ul li .li-left{ width:230px;}
+.list-main ul li .li-right{ width:700px; margin-left:20px; padding-top:20px;}
+.list-main ul li .li-right h1{ line-height:50px; height:50px; overflow:hidden; font-size:22px; font-weight:500; color:#333;}
+.list-main ul li .li-right p{ display:block; line-height:24px; height:96px; overflow:hidden; text-overflow:ellipsis; font-size:13px; color:#555;}
+.list-main ul li .li-right input.botton{ line-height:32px; color:#fff; background:#ff9a00; cursor:pointer; padding:0 32px; border:0; margin-top:40px; }
+.list-main ul li .li-right input.botton:hover{ background:#d78200;}

@@ -8,8 +8,3 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-
-return [
-    'Jackchow\Rbac\Command\PublishCommand',
-    'Jackchow\Rbac\Command\MigrateCommand',
-];

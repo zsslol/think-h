@@ -15,7 +15,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Rbac Roles Table
+    | Rbac AuthRules Table
     |--------------------------------------------------------------------------
     |
     | This is the roles table used by Rbac to save roles to the database.

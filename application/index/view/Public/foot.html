@@ -1,0 +1,35 @@
+<footer>
+				<div class="footer_size">
+					
+				<dl>
+					<dt>网站首页</dt>
+					<dd><a href="/">首页</a></dd>
+					<dd><a href="{:url('Home/Index/robot')}">小胖机器人</a></dd>
+					<dd><a href="{:url('Home/App/index')}">app下载</a></dd>
+					<dd><a href="{:url('Article/article/detail',array('id'=>50))}">关于我们</a></dd>
+				</dl>
+				<dl>
+					<dt>联系我们</dt>
+					<dd class="qq_img"><span></span>
+					<a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin={:getAdminConfig('system.WEB_SITE_QQ')}&site=qq&menu=yes">
+					{:getAdminConfig('system.WEB_SITE_QQ')}
+					</a>
+					</dd>
+					<dd class="mm_img"><span></span>
+					<a href="mailto:{:getAdminConfig('system.WEB_SITE_EMAIL')}">
+					{:getAdminConfig('system.WEB_SITE_EMAIL')}
+					</a>
+					</dd>
+				</dl>
+				<div class="dsd">
+					<p>关注微信公众号</p>
+					<img src="{:getCover(getAdminConfig('system.WEB_SITE_WECHAT_QR'))}">
+				</div>
+				<div class="dsd">
+					<p>下载手机app</p>
+					<img src="{:getCover(getAdminConfig('app.WEB_SITE_DOWNLOAD_QR'))}">
+				</div>
+				
+				</div>
+			</footer>
+			<div class="banquan"><span>{:getAdminConfig('system.WEB_SITE_ICP')} {:getAdminConfig('system.WEB_SITE_COPYRIGHT')}</span></div>

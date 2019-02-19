@@ -1,15 +1,81 @@
 <?php
 namespace app\index\controller;
 
-class Index
-{
-    public function index()
-    {
-        return '<style type="text/css">*{ padding: 0; margin: 0; } div{ padding: 4px 48px;} a{color:#2E5CD5;cursor: pointer;text-decoration: none} a:hover{text-decoration:underline; } body{ background: #fff; font-family: "Century Gothic","Microsoft yahei"; color: #333;font-size:18px;} h1{ font-size: 100px; font-weight: normal; margin-bottom: 12px; } p{ line-height: 1.6em; font-size: 42px }</style><div style="padding: 24px 48px;"> <h1>:) </h1><p> ThinkPHP V5.1<br/><span style="font-size:30px">12载初心不改（2006-2018） - 你值得信赖的PHP框架</span></p></div><script type="text/javascript" src="https://tajs.qq.com/stats?sId=64890268" charset="UTF-8"></script><script type="text/javascript" src="https://e.topthink.com/Public/static/client.js"></script><think id="eab4b9f840753f8e7"></think>';
+use app\index\controller\Home;
+/**
+ * 前台默认控制器
+ *
+ */
+class Index extends Home {
+    /**
+     * 默认方法
+     *
+     */
+    public function index() {
+        $article_model = new \app\article\model\Article();
+        $slide_model = new \app\article\model\Slide();
+
+        //幻灯片
+        $this->assign('slide_list',$slide_model->getSlideList());
+
+        //行业新闻
+        $hyxw_list = $article_model->getArticleList(14, 3, [],'content,description');
+        $this->assign('hyxw_list',$hyxw_list['list']);
+
+        return $this->fetch();
     }
 
-    public function hello($name = 'ThinkPHP5')
-    {
-        return 'hello,' . $name;
+    //小胖介绍页
+    public function robot(){
+    	return $this->fetch();
+    }
+
+    //列表
+    public function articleList($diyname){
+        $category = \app\article\model\Category::where('diyname',$diyname)->field('id,name,diyname,keywords,description')->find();
+        if($category == false)$this->error('参数错误，请重试', url('index'));
+
+        $article_model = new \app\article\model\Article();
+        $this->assign('data', $article_model->getArticleList($category['id'], 10));
+        $this->assign('category', $category->toArray());
+        return $this->fetch();
+    }
+
+    //单页
+    public function page($name){
+        $model = new \app\article\model\Page();
+        $content = $model->getPage($name);
+        if($content == false)$this->error('参数错误，请重试', url('index'));
+
+        $this->assign('page', $content);
+        return $this->fetch();
+    }
+
+    //详情
+    public function detail($id){
+        $model = new \app\article\model\Article();
+        $content = $model->getDetail($id);
+        if($content == false)$this->error('参数错误，请重试', url('index'));
+        $this->assign('info', $content);
+        return $this->fetch();
+    }
+    
+    //显示地图
+    public function map(){
+        $count=D('Gps/DeviceUpdateDemo')->count();
+        $this->assign("count",$count);
+
+        $this->assign('bdmap_ak', C('gps_config.bdmap_ak'));
+        $this->display();
+    }
+
+    //获取所有设备的位置
+    public function getLocations(){
+        $list=D('Gps/DeviceUpdateDemo')->field('longitude,latitude')->select();
+        if($list){
+            $this->success($list,null,true);
+        }else{
+            $this->error('暂无数据',null,true);
+        }
     }
 }

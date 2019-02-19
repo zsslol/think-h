@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>{$page.title}-{:getAdminConfig('system.WEB_SITE_TITLE')}</title>
+		<meta name="keywords" content="{$page.keywords}">
+		<meta name="description" content="{$page.description}">
+		<link rel="stylesheet" href="/Index/css/detail.css" />
+	</head>
+	<body>
+		{include file="Public/head"/}
+<!--头部结束-->
+
+<!--新闻内容页开始-->
+
+		<div class="top-tltle">
+			<h2>当前位置：<a href="/">首页</a> > 
+			<span title="{$page.title}">{:strcut($page['title'], 20)}</span>
+			</h2>
+		</div>
+
+		<hr style="height:1px;border-top:1px solid #ccc;" />
+		<div class="row">
+			<div class="news-con">
+				<h2>{$page.title}</h2>
+				<!--<div class="fbz">发布时间：{$page.create_time}</div>-->
+
+				<div>
+					{$page.content|raw}
+				</div>
+			</div>
+		</div>
+		
+
+
+<!--新闻内容结束-->
+			
+
+<!--页脚部分-->
+			{include file="Public/foot"/}
+		</div>
+		<script src="Index/js/jquery.min.js"></script>
+    	<script src="Index/js/scrolltopcontrol.js"></script>
+	</body>
+</html>

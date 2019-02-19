@@ -147,7 +147,7 @@
     // Will contain the actual code, positioned to cover the viewport.
     d.lineDiv = elt("div", null, "CodeMirror-code");
     // Elements are added to these to represent selection and cursors.
-    d.selectionDiv = elt("div", null, null, "position: relative; z-index: 1");
+    d.selectionDiv = elt("div", null, null, "position: relative; z-Index: 1");
     d.cursorDiv = elt("div", null, "CodeMirror-cursors");
     // A visibility: hidden element used to find the size of things.
     d.measure = elt("div", null, "CodeMirror-measure");
@@ -174,7 +174,7 @@
     d.wrapper = elt("div", [d.inputDiv, d.scrollbarH, d.scrollbarV,
                             d.scrollbarFiller, d.gutterFiller, d.scroller], "CodeMirror");
 
-    // Work around IE7 z-index bug (not perfect, hence IE7 not really being supported)
+    // Work around IE7 z-Index bug (not perfect, hence IE7 not really being supported)
     if (ie && ie_version < 8) { d.gutters.style.zIndex = -1; d.scroller.style.paddingRight = 0; }
     // Needed to hide big blue blinking cursor on Mobile Safari
     if (ios) input.style.width = "0px";
@@ -3330,7 +3330,7 @@
     var oldCSS = display.input.style.cssText;
     display.inputDiv.style.position = "absolute";
     display.input.style.cssText = "position: fixed; width: 30px; height: 30px; top: " + (e.clientY - 5) +
-      "px; left: " + (e.clientX - 5) + "px; z-index: 1000; background: " +
+      "px; left: " + (e.clientX - 5) + "px; z-Index: 1000; background: " +
       (ie ? "rgba(255, 255, 255, .05)" : "transparent") +
       "; outline: none; border-width: 0; outline: none; overflow: hidden; opacity: .05; filter: alpha(opacity=5);";
     if (webkit) var oldScrollY = window.scrollY; // Work around Chrome issue (#2712)
@@ -3926,7 +3926,7 @@
   // cross line boundaries), "word" (across next word), or "group" (to
   // the start of next group of word or non-word-non-whitespace
   // chars). The visually param controls whether, in right-to-left
-  // text, direction 1 means to move towards the next index in the
+  // text, direction 1 means to move towards the next Index in the
   // string, or towards the character to the right of the current
   // position. The resulting position will have a hitSide=true
   // property if it reached the end of the document.

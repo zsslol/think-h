@@ -1,0 +1,80 @@
+<div class="form-group form-group-rules">
+    <label class="col-sm-2 control-label"><span class="must">*</span>权限</label>
+    <div class="col-sm-10">
+        <div id="jstree_rules"></div>
+        <input value="" name="rules" id="rules" type="hidden" class="formbuilder-input form-control ">
+        <span class="help-block m-b-none" _title="角色的权限">角色的权限</span>
+    </div>
+</div>
+
+{php}
+function showItem($data, $rule_ids){
+    $js_html = '';
+    foreach($data as $item){
+        $js_html .= '{
+        "id" : "'.$item['id'].'",
+        "text" : "'.$item['title'].'",
+        "state" : {
+            "opened" : false';
+        if($item['status'] == 0)$js_html .= ',disabled:true';
+        if(in_array($item['id'], $rule_ids))$js_html .= ',undetermined:true';
+        $js_html .= '}';
+        if(isset($item['children']) && count($item['children']) > 0){
+            $js_html .= ',"children" : [';
+            $js_html .= showItem($item['children'], $rule_ids);
+            $js_html .= ']';
+        }
+        $js_html .= '},';
+    }
+    return $js_html;
+}
+{/php}
+
+<script>
+    var treeIds = [];
+    window.onload=function () {
+        var treeData = [
+            {php}echo showItem($data_list, $rule_ids);{/php}
+        ];
+
+        $(function () {
+            //提交前的所需操作
+            var submitPreVal = $('input[name="submit_pre"]').val();
+            $('input[name="submit_pre"]').val(submitPreVal + ',jsTreePutSelected');
+
+            $(".btn-form-submit").click(function(){
+                jsTreePutSelected();
+            });
+
+            var jsTreeObj = $('#jstree_rules').jstree({
+                "plugins" : ["checkbox"],
+                "checkbox" : {
+                    "keep_selected_style" : false,
+                    "three_state":true,
+                    "tie_selection":true
+                },
+                'core' : {
+                    'data' : treeData,
+                }
+            });
+            $('#jstree_rules').jstree().open_all();
+            $('#jstree_rules').on("changed.jstree", function (e, data) {
+                treeIds = data.selected;
+            });
+        });
+    };
+
+    //提交前的操作
+    function jsTreePutSelected(){
+        $('.jstree-node .jstree-anchor .jstree-undetermined').each(function(){
+            var id = $(this).parent().parent().attr('id');
+            if($.inArray(id, treeIds) < 0){
+                treeIds.push(id);
+            }
+        });
+        $('input[name="rules"]').val(treeIds.join(','));
+        $('#submit_pre_box input[name="jsTreePutSelected"]').val(1);
+    }
+</script>
+
+

@@ -369,7 +369,7 @@
                 });
             }
 
-            // Keep the tab index from the select.
+            // Keep the tab Index from the select.
             var tabindex = this.$select.attr('tabindex');
             if (tabindex) {
                 this.$button.attr('tabindex', tabindex);
@@ -546,7 +546,7 @@
                             from = tmp;
                         }
 
-                        // Make sure we grab all elements since slice excludes the last index
+                        // Make sure we grab all elements since slice excludes the last Index
                         ++to;
 
                         // Change the checkboxes and underlying options

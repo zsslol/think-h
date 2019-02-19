@@ -32,7 +32,7 @@
     $.extend($.fn.bootstrapTable.COLUMN_DEFAULTS, {
         printFilter: undefined, //set value to filter by in print page
         printIgnore: false, //boolean, set true to ignore this column in the print page
-        printFormatter:undefined //function(value, row, index), formats the cell value for this column in the printed table. Function behaviour is similar to the 'formatter' column option
+        printFormatter:undefined //function(value, row, Index), formats the cell value for this column in the printed table. Function behaviour is similar to the 'formatter' column option
 
     });
     $.extend($.fn.bootstrapTable.defaults.icons, {

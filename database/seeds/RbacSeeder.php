@@ -61,7 +61,7 @@ class RbacSeeder extends Seeder
 
         $data = [
             [
-                'name'          => 'index/index',
+                'name'          => 'Index/Index',
                 'description'   => '后台管理首页',
                 'display_menu'  => 0,
                 'parent_id'     => 0,
@@ -74,7 +74,7 @@ class RbacSeeder extends Seeder
                 'updated_at'    => date('Y-m-d H:i:s'),
             ],
             [
-                'name'          => 'index/main',
+                'name'          => 'Index/main',
                 'description'   => '后台管理主页',
                 'display_menu'  => 0,
                 'parent_id'     => 0,
@@ -87,7 +87,7 @@ class RbacSeeder extends Seeder
                 'updated_at'    => date('Y-m-d H:i:s'),
             ],
             [
-                'name'          => 'index/clearCache',
+                'name'          => 'Index/clearCache',
                 'description'   => '清除缓存',
                 'display_menu'  => 0,
                 'parent_id'     => 0,
@@ -100,7 +100,7 @@ class RbacSeeder extends Seeder
                 'updated_at'    => date('Y-m-d H:i:s'),
             ],
             [
-                'name'          => 'role/index',
+                'name'          => 'role/Index',
                 'description'   => '角色管理',
                 'display_menu'  => 1,
                 'parent_id'     => 0,
@@ -178,7 +178,7 @@ class RbacSeeder extends Seeder
                 'updated_at'    => date('Y-m-d H:i:s'),
             ],
             [
-                'name'          => 'permission/index',
+                'name'          => 'permission/Index',
                 'description'   => '权限管理',
                 'display_menu'  => 1,
                 'parent_id'     => 0,
@@ -256,7 +256,7 @@ class RbacSeeder extends Seeder
                 'updated_at'    => date('Y-m-d H:i:s'),
             ],
             [
-                'name'          => 'admin/index',
+                'name'          => 'admin/Index',
                 'description'   => '用户管理',
                 'display_menu'  => 1,
                 'parent_id'     => 0,
@@ -334,7 +334,7 @@ class RbacSeeder extends Seeder
                 'updated_at'    => date('Y-m-d H:i:s'),
             ],
             [
-                'name'          => 'index/getNavbarList',
+                'name'          => 'Index/getNavbarList',
                 'description'   => '接口--获取后台菜单列表',
                 'display_menu'  => 0,
                 'parent_id'     => 0,

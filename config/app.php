@@ -54,13 +54,13 @@ return [
     // +----------------------------------------------------------------------
 
     // 默认模块名
-    'default_module'         => 'index',
+    'default_module'         => 'Index',
     // 禁止访问模块
     'deny_module_list'       => ['common'],
     // 默认控制器名
     'default_controller'     => 'Index',
     // 默认操作名
-    'default_action'         => 'index',
+    'default_action'         => 'Index',
     // 默认验证器
     'default_validate'       => '',
     // 默认的空模块名
@@ -107,7 +107,7 @@ return [
     // 域名根，如thinkphp.cn
     'url_domain_root'        => '',
     // 是否自动转换URL中的控制器和操作名
-    'url_convert'            => true,
+    'url_convert'            => false,
     // 默认的访问控制器层
     'url_controller_layer'   => 'controller',
     // 表单请求类型伪装变量
@@ -130,8 +130,12 @@ return [
     'route_cache_option'     => [],
 
     // 默认跳转页面对应的模板文件
+    /*
     'dispatch_success_tmpl'  => Env::get('think_path') . 'tpl/dispatch_jump.tpl',
     'dispatch_error_tmpl'    => Env::get('think_path') . 'tpl/dispatch_jump.tpl',
+    */
+    'dispatch_success_tmpl'  => '../application/index/view/public/success_error.html',
+    'dispatch_error_tmpl'    => '../application/index/view/public/success_error.html',
 
     // 异常页面的模板文件
     'exception_tmpl'         => Env::get('think_path') . 'tpl/think_exception.tpl',

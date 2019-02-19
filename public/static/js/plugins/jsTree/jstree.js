@@ -126,7 +126,7 @@
 	 * the jstree class constructor, used only internally
 	 * @private
 	 * @name $.jstree.core(id)
-	 * @param {Number} id this instance's index
+	 * @param {Number} id this instance's Index
 	 */
 	$.jstree.core = function (id) {
 		this._id = id;
@@ -3608,7 +3608,7 @@
 		 * @name create_node([obj, node, pos, callback, is_loaded])
 		 * @param  {mixed}   par       the parent node (to create a root node use either "#" (string) or `null`)
 		 * @param  {mixed}   node      the data for the new node (a valid JSON object, or a simple string with the name)
-		 * @param  {mixed}   pos       the index at which to insert the node, "first" and "last" are also supported, default is "last"
+		 * @param  {mixed}   pos       the Index at which to insert the node, "first" and "last" are also supported, default is "last"
 		 * @param  {Function} callback a function to be called once the node is created
 		 * @param  {Boolean} is_loaded internal argument indicating if the parent node was succesfully loaded
 		 * @return {String}            the ID of the newly create node

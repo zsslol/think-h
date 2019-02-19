@@ -1,0 +1,13 @@
+<!--页头部分-->
+<link rel="stylesheet" href="/Index/css/new_file.css" />
+<header>
+	<div class="logo"><a href="/"><img src="{:getCover(getAdminConfig('system.WEB_SITE_LOGO'))}"/></a></div>
+	<nav>
+		<ul>
+			<li><a href="/" {if request()->controller().'/'.request()->action() == 'Index/index'}class="header-action"{/if}>首 页</a></li>
+			<li><a {if request()->controller().'/'.request()->action() == 'Index/robot'}class="header-action"{/if} href="{:url('Index/Index/robot')}">小胖机器人</a></li>
+			<li><a {if request()->controller().'/'.request()->action() == 'App/index'}class="header-action"{/if} href="{:url('Index/App/index')}">APP下载</a></li>
+			<li><a {if request()->controller().'/'.request()->action() == 'Index/page' && request()->param('name') == 'aboutme'}class="header-action"{/if} href="{:url('Index/Index/page', ['name' => 'aboutme'])}">关于我们</a></li>
+		</ul>
+	</nav>
+</header>

@@ -177,7 +177,7 @@
 .blueimp-gallery-controls > .title,
 .blueimp-gallery-controls > .play-pause {
   display: block;
-  /* Fix z-index issues (controls behind slide element) on Android: */
+  /* Fix z-Index issues (controls behind slide element) on Android: */
   -webkit-transform: translateZ(0);
      -moz-transform: translateZ(0);
       -ms-transform: translateZ(0);
